@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Settings, BarChart3, FolderOpen, RefreshCw, Download, RotateCcw } from 'lucide-react'
 import { Button, Loading } from '@shared/components'
 import { useApp } from '@shared/contexts/AppContext'
@@ -8,6 +8,78 @@ export default function PopupApp() {
   const { state, dispatch } = useApp()
   const { tabs, loading: tabsLoading } = useTabs()
   const [searchQuery, setSearchQuery] = useState('')
+
+  // 加载标签组数据
+  const loadGroups = async () => {
+    try {
+      // 获取当前窗口并查询该窗口的所有标签组
+      const currentWindow = await chrome.windows.getCurrent()
+      const groups = await chrome.tabGroups.query({ windowId: currentWindow.id })
+      
+      // 为每个标签组获取其包含的标签页
+      const groupsWithTabs = await Promise.all(
+        groups.map(async (group) => {
+          try {
+            // 查询属于该组的标签页
+            const tabs = await chrome.tabs.query({ groupId: group.id })
+            
+            return {
+              id: `native-${group.id}`,
+              name: group.title || `标签组 ${group.id}`,
+              tabs: tabs,
+              category: inferCategoryFromTabs(tabs) || 'General',
+              createdAt: new Date(),
+              lastUpdated: new Date(),
+            }
+          } catch (error) {
+            console.warn(`获取标签组 ${group.id} 的标签页失败:`, error)
+            return null
+          }
+        })
+      )
+      
+      // 过滤掉失败的组并更新状态
+      const validGroups = groupsWithTabs.filter(group => group !== null)
+      dispatch({ type: 'SET_TAB_GROUPS', payload: validGroups })
+      
+    } catch (error) {
+      console.error('Failed to load groups:', error)
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to load tab groups' })
+    }
+  }
+
+  // 根据标签页推断分类
+  const inferCategoryFromTabs = (tabs: chrome.tabs.Tab[]): string => {
+    if (!tabs || tabs.length === 0) return 'General'
+    
+    const domains = tabs.map(tab => {
+      try {
+        return new URL(tab.url || '').hostname
+      } catch {
+        return ''
+      }
+    }).filter(Boolean)
+    
+    if (domains.some(domain => domain.includes('github.com') || domain.includes('gitlab.com'))) {
+      return 'Development'
+    }
+    if (domains.some(domain => domain.includes('youtube.com') || domain.includes('netflix.com'))) {
+      return 'Entertainment'
+    }
+    if (domains.some(domain => domain.includes('google.com') || domain.includes('stackoverflow.com'))) {
+      return 'Research'
+    }
+    if (domains.some(domain => domain.includes('amazon.com') || domain.includes('taobao.com'))) {
+      return 'Shopping'
+    }
+    
+    return 'General'
+  }
+
+  // 组件挂载时加载数据
+  useEffect(() => {
+    loadGroups()
+  }, [])
 
   const handleOpenWorkspace = () => {
     chrome.tabs.create({ url: chrome.runtime.getURL('src/workspace/workspace.html') })
@@ -53,6 +125,9 @@ export default function PopupApp() {
     }
   }
 
+  // 计算活跃组数量（只计算有标签页的组）
+  const activeGroupsCount = state.tabGroups.filter(group => group.tabs && group.tabs.length > 0).length
+
   const recentGroups = state.tabGroups.slice(0, 3)
 
   if (tabsLoading) {
@@ -96,7 +171,7 @@ export default function PopupApp() {
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-gray-50 p-3 rounded-lg">
           <div className="text-sm text-gray-600">Active Groups</div>
-          <div className="text-xl font-semibold text-primary-600">{state.tabGroups.length}</div>
+          <div className="text-xl font-semibold text-primary-600">{activeGroupsCount}</div>
         </div>
         <div className="bg-gray-50 p-3 rounded-lg">
           <div className="text-sm text-gray-600">Total Tabs</div>
