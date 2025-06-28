@@ -101,7 +101,7 @@ function GroupCard({ group, onEdit, onDelete, onOpenTabs }: GroupCardProps) {
         {group.tabs.slice(0, 4).map((tab, index) => (
           <div key={index} className="flex items-center space-x-2 text-sm">
             <img 
-              src={tab.favIconUrl || '/icon-16.png'} 
+              src={tab.favIconUrl } 
               alt="" 
               className="w-4 h-4 flex-shrink-0"
               onError={(e) => { e.currentTarget.src = '/icon-16.png' }}
