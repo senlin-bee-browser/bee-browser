@@ -67,7 +67,7 @@ export default function PopupApp() {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-2xl">🐝</span>
-          <h1 className="text-lg font-semibold">Bee Browser</h1>
+          <h1 className="text-lg font-semibold">Bee Browser 0.0.1</h1>
         </div>
         <Button
           variant="ghost"

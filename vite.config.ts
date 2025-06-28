@@ -1,16 +1,28 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
-import { copyFileSync } from 'fs'
+import { copyFileSync, cpSync, existsSync, mkdirSync } from 'fs'
 
 export default defineConfig({
   base: './',
   plugins: [
     react(),
     {
-      name: 'copy-manifest',
+      name: 'copy-assets',
       writeBundle() {
+        // Copy manifest.json
         copyFileSync('manifest.json', 'dist/manifest.json')
+        
+        // Copy icons directory
+        const iconsSource = 'src/assets/icons'
+        const iconsTarget = 'dist/icons'
+        
+        if (existsSync(iconsSource)) {
+          // Create target directory if it doesn't exist
+          mkdirSync(iconsTarget, { recursive: true })
+          // Copy all icon files
+          cpSync(iconsSource, iconsTarget, { recursive: true })
+        }
       }
     }
   ],
@@ -22,6 +34,7 @@ export default defineConfig({
         options: resolve(__dirname, 'src/options/options.html'),
         sidepanel: resolve(__dirname, 'src/sidepanel/sidepanel.html'),
         workspace: resolve(__dirname, 'src/workspace/workspace.html'),
+        newtab: resolve(__dirname, 'src/newtab/newtab.html'),
         // Background scripts
         'service-worker': resolve(__dirname, 'src/background/service-worker.ts'),
         // Content scripts
