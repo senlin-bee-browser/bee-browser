@@ -321,18 +321,44 @@ export default function SidepanelApp() {
           }
         })
       })
-      const llmOutput = JSON.parse((await r.json()).data).output
-      const results = JSON.parse(llmOutput)
-      console.log(results)
+      const response = await r.json()
+      const llmOutput = JSON.parse(response.data).output
+      const results: Array<{id: string, category: string}> = JSON.parse(llmOutput)
+      console.log('LLM 分析结果:', results)
 
-      const groups = Object.groupBy(results, (g) => g.category)
-      console.log(groups)
-      Object.entries(groups).map(async ([title, tabs])=>{
-        const groupId = await chrome.tabs.group({ 
-          tabIds: tabs.map(t=>+t.id).filter(Boolean),
-        })
-        await chrome.tabGroups.update(groupId, {title})
+      // 手动实现 groupBy 功能，替代 Object.groupBy
+      const groups: Record<string, Array<{id: string, category: string}>> = {}
+      results.forEach((item) => {
+        const category = item.category
+        if (!groups[category]) {
+          groups[category] = []
+        }
+        groups[category].push(item)
       })
+      
+      console.log('分组结果:', groups)
+      
+      // 使用 Promise.all 等待所有异步操作完成
+      const groupPromises = Object.entries(groups).map(async ([title, tabsInGroup]) => {
+        try {
+          const tabIds = tabsInGroup
+            .map(t => parseInt(t.id))
+            .filter(id => !isNaN(id) && id > 0)
+          
+          if (tabIds.length > 0) {
+            console.log(`创建标签组 "${title}"，包含标签页:`, tabIds)
+            const groupId = await chrome.tabs.group({ tabIds })
+            await chrome.tabGroups.update(groupId, { title })
+            console.log(`✅ 成功创建标签组 "${title}"`)
+          } else {
+            console.warn(`标签组 "${title}" 没有有效的标签页ID`)
+          }
+        } catch (error) {
+          console.error(`❌ 创建标签组 "${title}" 失败:`, error)
+        }
+      })
+      
+      await Promise.all(groupPromises)
       
       // 重新加载 groups 以获取可能的新分组
       await loadGroups(false)

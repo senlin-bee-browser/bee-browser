@@ -340,7 +340,7 @@ export default function PopupApp() {
             Analyze Current Tabs
           </Button>
           
-          <Button
+          {/* <Button
             variant="outline"
             onClick={handleGroupSimilarTabs}
             loading={state.isLoading}
@@ -348,7 +348,7 @@ export default function PopupApp() {
           >
             <FolderOpen className="w-4 h-4 mr-2" />
             Group Similar Tabs
-          </Button>
+          </Button> */}
           
           <Button
             variant="outline"
@@ -371,7 +371,7 @@ export default function PopupApp() {
       )}
 
       {/* Recent Groups - 只在没有搜索时显示 */}
-      {!searchQuery.trim() && (
+      {/* {!searchQuery.trim() && (
         <div>
           <h3 className="text-sm font-medium text-gray-700 mb-2">Recent Groups</h3>
           {recentGroups.length > 0 ? (
@@ -389,7 +389,7 @@ export default function PopupApp() {
             </div>
           )}
         </div>
-      )}
+      )} */}
 
       {/* Quick Actions - 只在没有搜索时显示 */}
       {!searchQuery.trim() && (
