@@ -3,6 +3,7 @@ import { BarChart3, Folder, Globe, Clock, TrendingUp, Activity, X } from 'lucide
 import { Button } from '@shared/components'
 import { useApp } from '@shared/contexts/AppContext'
 import { useTabs } from '@shared/hooks/useTabs'
+import { AIProcessor } from '@utils/ai-processor'
 
 interface StatCardProps {
   title: string
@@ -77,13 +78,38 @@ export default function Dashboard() {
   const handleAnalyzeCurrentTabs = async () => {
     dispatch({ type: 'SET_LOADING', payload: true })
     try {
-      // Get all tabs in the current window
-      const allTabs = await chrome.tabs.query({ currentWindow: true })
-      setAnalyzeTabs(allTabs)
+      // Get filtered tabs for preview
+      const filteredTabs = await AIProcessor.getCurrentTabs()
+      setAnalyzeTabs(filteredTabs)
       setShowAnalyzeModal(true)
-      console.log('Analyzing tabs:', allTabs)
+      console.log('Analyzing tabs (excluding extension pages):', filteredTabs)
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to analyze current tabs' })
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to get current tabs' })
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false })
+    }
+  }
+
+  const executeTabAnalysis = async () => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true })
+      
+      // Use AIProcessor for complete analysis workflow
+      const { createdGroups } = await AIProcessor.analyzeCurrentTabs()
+
+      // Add created groups to app state
+      createdGroups.forEach(group => {
+        dispatch({ type: 'ADD_TAB_GROUP', payload: group })
+      })
+
+      setShowAnalyzeModal(false)
+      
+    } catch (error) {
+      console.error('❌ Tab analysis failed:', error)
+      dispatch({ 
+        type: 'SET_ERROR', 
+        payload: `Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      })
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false })
     }
@@ -332,11 +358,8 @@ export default function Dashboard() {
                 Close
               </Button>
               <Button
-                onClick={() => {
-                  // TODO: Implement actual analysis workflow
-                  console.log('Starting analysis workflow with tabs:', analyzeTabs)
-                  setShowAnalyzeModal(false)
-                }}
+                onClick={executeTabAnalysis}
+                loading={state.isLoading}
                 className="flex-1"
               >
                 <Activity className="w-4 h-4 mr-2" />

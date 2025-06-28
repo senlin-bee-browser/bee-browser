@@ -6,11 +6,11 @@ import { TabGroupIntegration } from './tab-group-integration';
  */
 export class NativeTabGroupsDemo {
   private nativeTabGroups: NativeTabGroups;
-  private integration: TabGroupIntegration;
+  private _integration: TabGroupIntegration;
 
   constructor() {
     this.nativeTabGroups = new NativeTabGroups();
-    this.integration = new TabGroupIntegration();
+    this._integration = new TabGroupIntegration();
   }
 
   /**
