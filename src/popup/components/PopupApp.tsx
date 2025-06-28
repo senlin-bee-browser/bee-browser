@@ -3,6 +3,7 @@ import { Search, Settings, BarChart3, FolderOpen, RefreshCw, Download, RotateCcw
 import { Button, Loading } from '@shared/components'
 import { useApp } from '@shared/contexts/AppContext'
 import { useTabs } from '@shared/hooks/useTabs'
+import { AIProcessor } from '@utils/ai-processor'
 
 export default function PopupApp() {
   const { state, dispatch } = useApp()
@@ -103,13 +104,21 @@ export default function PopupApp() {
   const handleAnalyzeCurrentTabs = async () => {
     dispatch({ type: 'SET_LOADING', payload: true })
     try {
-      // Get all tabs in the current window and open workspace
-      const allTabs = await chrome.tabs.query({ currentWindow: true })
-      console.log('Analyzing tabs:', allTabs)
-      // Open workspace for full analysis experience
+      // Use AIProcessor for complete analysis workflow
+      const { createdGroups } = await AIProcessor.analyzeCurrentTabs()
+
+      // Add created groups to app state
+      createdGroups.forEach(group => {
+        dispatch({ type: 'ADD_TAB_GROUP', payload: group })
+      })
+
+      console.log('✅ Tab analysis completed successfully')
+      
+      // Open workspace to see results
       handleOpenWorkspace()
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to analyze current tabs' })
+      console.error('❌ Tab analysis failed:', error)
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to analyze current tabs: ' + (error instanceof Error ? error.message : 'Unknown error') })
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false })
     }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Search, Settings, Home, BarChart3, Folder, Plus, Filter, X, ChevronDown, ChevronRight } from 'lucide-react'
+import { Settings, Home, BarChart3, Folder, Plus, Filter, X, ChevronDown, ChevronRight } from 'lucide-react'
 import { Button } from '@shared/components'
 import { useApp } from '@shared/contexts/AppContext'
 import { useTabs } from '@shared/hooks/useTabs'
@@ -335,7 +335,7 @@ export default function WorkspaceApp() {
   const { state, dispatch } = useApp()
   const { tabs } = useTabs({ enableEnhancement: false })
   const [activePage, setActivePage] = useState<ActivePage>('dashboard')
-  const [searchQuery, setSearchQuery] = useState('')
+  // Remove unused search state for now
   const [showNewGroupModal, setShowNewGroupModal] = useState(false)
 
   const handleCreateNewGroup = async (formData: NewGroupFormData) => {

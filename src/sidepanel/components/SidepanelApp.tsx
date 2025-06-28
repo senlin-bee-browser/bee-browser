@@ -3,6 +3,7 @@ import { Search, RefreshCw, Settings, ExternalLink, MoreVertical, List, Layers, 
 import { Button, Loading } from '@shared/components'
 import { useApp } from '@shared/contexts/AppContext'
 import { useTabs } from '@shared/hooks/useTabs'
+import { AIProcessor } from '@utils/ai-processor'
 import TabsList from './TabsList'
 
 interface GroupCardProps {
@@ -296,71 +297,15 @@ export default function SidepanelApp() {
     try {
       dispatch({ type: 'SET_LOADING', payload: true })
       
-      const tabs = await chrome.tabs.query({ currentWindow: true })
-      const tabsData = tabs.map(tab => ({
-        id: tab.id,
-        title: tab.title,
-        url: tab.url,
-        favIconUrl: tab.favIconUrl,
-        active: tab.active,
-        pinned: tab.pinned,
-        audible: tab.audible,
-        discarded: tab.discarded,
-      }))
+      // Use AIProcessor for complete analysis workflow
+      const { createdGroups } = await AIProcessor.analyzeCurrentTabs()
 
-      const r = await fetch("https://api.coze.cn/v1/workflow/run", {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer pat_gqb2WMNGMLRDwB85gyIhXxAxJDJZ7BM2bClu8H5imVrvvxV7oUMY8iLpdNUUMvSj",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          "workflow_id": "7520894694882525223",
-          "parameters": {
-            "input": tabsData //塞入标签页数组
-          }
-        })
-      })
-      const response = await r.json()
-      const llmOutput = JSON.parse(response.data).output
-      const results: Array<{id: string, category: string}> = JSON.parse(llmOutput)
-      console.log('LLM 分析结果:', results)
-
-      // 手动实现 groupBy 功能，替代 Object.groupBy
-      const groups: Record<string, Array<{id: string, category: string}>> = {}
-      results.forEach((item) => {
-        const category = item.category
-        if (!groups[category]) {
-          groups[category] = []
-        }
-        groups[category].push(item)
+      // Add created groups to app state (if needed for sidepanel)
+      createdGroups.forEach(group => {
+        dispatch({ type: 'ADD_TAB_GROUP', payload: group })
       })
       
-      console.log('分组结果:', groups)
-      
-      // 使用 Promise.all 等待所有异步操作完成
-      const groupPromises = Object.entries(groups).map(async ([title, tabsInGroup]) => {
-        try {
-          const tabIds = tabsInGroup
-            .map(t => parseInt(t.id))
-            .filter(id => !isNaN(id) && id > 0)
-          
-          if (tabIds.length > 0) {
-            console.log(`创建标签组 "${title}"，包含标签页:`, tabIds)
-            const groupId = await chrome.tabs.group({ tabIds })
-            await chrome.tabGroups.update(groupId, { title })
-            console.log(`✅ 成功创建标签组 "${title}"`)
-          } else {
-            console.warn(`标签组 "${title}" 没有有效的标签页ID`)
-          }
-        } catch (error) {
-          console.error(`❌ 创建标签组 "${title}" 失败:`, error)
-        }
-      })
-      
-      await Promise.all(groupPromises)
-      
-      // 重新加载 groups 以获取可能的新分组
+      // Reload groups to show the new native groups
       await loadGroups(false)
       
       console.log('✅ 当前标签页分析完成')

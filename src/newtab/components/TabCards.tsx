@@ -63,7 +63,7 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
           标签页列表 ({filteredTabs.length})
         </h3>
         
-        <div className="flex items-center space-x-2">
+        {/* <div className="flex items-center space-x-2">
           <button
             onClick={() => setFilter('all')}
             className={`px-3 py-1 rounded-lg text-sm transition-colors ${
@@ -104,7 +104,7 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
           >
             已固定
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* 标签页列表 */}
