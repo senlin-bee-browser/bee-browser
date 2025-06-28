@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ExternalLink, X, Star, StarOff, Globe, Clock, MoreVertical, Search, Trash2 } from 'lucide-react'
+import { MindMap } from '@ant-design/graphs'
 import { Button } from '@shared/components'
 import { useApp } from '@shared/contexts/AppContext'
 import type { TabGroup } from '@shared/contexts/AppContext'
@@ -155,6 +156,110 @@ function TabItem({ tab, onOpenTab, onCloseTab, onSwitchToTab }: TabItemProps) {
   )
 }
 
+interface TabMindmapProps {
+  group: TabGroup
+  onTabClick: (tabId: number) => void
+}
+
+function TabMindmap({ group, onTabClick }: TabMindmapProps) {
+  // Transform group and tabs data into tree format for Ant Design MindMap
+  const createMindMapData = () => {
+    const children = group.tabs.map((tab) => ({
+      id: tab.title || 'Untitled',
+      type: 'rect',
+      size: [200, 35],
+      style: {
+        fill: '#ffffff',
+        stroke: '#52c41a',
+        lineWidth: 1,
+        radius: 4,
+        cursor: 'pointer',
+      },
+      labelCfg: {
+        style: {
+          fill: '#333',
+          fontSize: 11,
+          fontWeight: 'normal',
+        },
+      },
+      // Store tab data for click handling
+      data: { tab }
+    }))
+
+    return {
+      id: group.name,
+      type: 'rect',
+      size: [150, 50],
+      style: {
+        fill: '#1890ff',
+        stroke: '#1890ff',
+        lineWidth: 2,
+        radius: 6,
+      },
+      labelCfg: {
+        style: {
+          fill: '#ffffff',
+          fontSize: 14,
+          fontWeight: 'bold',
+        },
+      },
+      children
+    }
+  }
+
+  const mindMapData = createMindMapData()
+
+  const config = {
+    data: mindMapData,
+    layout: {
+      type: 'mindmap',
+      direction: 'H', // Horizontal layout
+      getHGap: () => 100,
+      getVGap: () => 50,
+      getSide: () => 'right', // All children nodes on the right side
+    },
+    defaultNode: {
+      type: 'rect',
+      size: [120, 40],
+      style: {
+        fill: '#ffffff',
+        stroke: '#1890ff',
+        lineWidth: 1,
+        radius: 4,
+      },
+      labelCfg: {
+        style: {
+          fill: '#333',
+          fontSize: 12,
+          fontWeight: 'normal',
+        },
+      },
+    },
+    onNodeClick: (evt: any) => {
+      const { item } = evt
+      const model = item.getModel()
+      
+      // Handle tab clicks
+      if (model.data?.tab?.id) {
+        onTabClick(model.data.tab.id)
+      }
+    },
+  }
+
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-gray-900">Tab Mindmap</h2>
+        <p className="text-sm text-gray-600">Click on any tab to switch to it</p>
+      </div>
+      
+      <div className="h-96 border border-gray-100 rounded-lg overflow-hidden">
+        <MindMap {...config} />
+      </div>
+    </div>
+  )
+}
+
 export default function GroupTabDetail({ group, onGroupDeleted }: GroupTabDetailProps) {
   const { dispatch } = useApp()
   const [searchQuery, setSearchQuery] = useState('')
@@ -250,6 +355,9 @@ export default function GroupTabDetail({ group, onGroupDeleted }: GroupTabDetail
 
   return (
     <div className="p-6 space-y-6">
+      {/* Tab Mindmap */}
+      <TabMindmap group={group} onTabClick={handleSwitchToTab} />
+
       {/* Group Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg border border-gray-200 p-4">
