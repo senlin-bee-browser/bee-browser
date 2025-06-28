@@ -1,0 +1,57 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
+
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: {
+        // Extension entry points
+        popup: resolve(__dirname, 'src/popup/popup.html'),
+        options: resolve(__dirname, 'src/options/options.html'),
+        sidepanel: resolve(__dirname, 'src/sidepanel/sidepanel.html'),
+        workspace: resolve(__dirname, 'src/workspace/workspace.html'),
+        // Background scripts
+        'service-worker': resolve(__dirname, 'src/background/service-worker.ts'),
+        // Content scripts
+        'content-script': resolve(__dirname, 'src/content/content-script.ts'),
+      },
+      output: {
+        entryFileNames: (chunkInfo) => {
+          // Keep specific naming for background and content scripts
+          if (chunkInfo.name === 'service-worker') {
+            return 'background/service-worker.js'
+          }
+          if (chunkInfo.name === 'content-script') {
+            return 'content/content-script.js'
+          }
+          return '[name].js'
+        },
+        chunkFileNames: 'chunks/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash].[ext]'
+      }
+    },
+    outDir: 'dist',
+    emptyOutDir: true,
+    // Ensure we don't bundle Chrome APIs
+    target: 'es2017',
+    minify: process.env['NODE_ENV'] === 'production',
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+      '@shared': resolve(__dirname, 'src/shared'),
+      '@utils': resolve(__dirname, 'src/utils'),
+      '@types': resolve(__dirname, 'src/types'),
+    }
+  },
+  define: {
+    // Required for Chrome extension environment
+    global: 'globalThis',
+  },
+  // Disable HMR for production builds
+  server: {
+    hmr: process.env['NODE_ENV'] !== 'production'
+  }
+})

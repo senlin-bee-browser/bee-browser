@@ -53,7 +53,7 @@ export interface StorageData {
 }
 
 export interface MessageType {
-  type: 'TAB_UPDATED' | 'ANALYZE_TAB' | 'GET_GROUPS' | 'UPDATE_SETTINGS' | 'SYNC_DATA';
+  type: 'TAB_UPDATED' | 'ANALYZE_TAB' | 'GET_GROUPS' | 'UPDATE_SETTINGS' | 'SYNC_DATA' | 'GET_SETTINGS' | 'CLEAR_DATA' | 'EXPORT_DATA' | 'IMPORT_DATA' | 'GET_ANALYTICS' | 'GET_STORAGE_USAGE' | 'DELETE_GROUP';
   payload?: any;
 }
 

@@ -8,36 +8,57 @@ A Chrome browser extension that uses LLM to analyze user's browsing history and 
 2. **AI-Powered Grouping**: Use LLM to semantically group related tabs/pages
 3. **Knowledge Management**: Restructure and present grouped content for easy access
 4. **Smart Organization**: Help users discover patterns in their browsing behavior
+5. **Workspace Experience**: Full-tab React app for comprehensive knowledge management and visualization
 
 ## Tech Stack
 - **Language**: TypeScript
 - **Framework**: Chrome Extension Manifest V3
-- **Frontend**: HTML/CSS, optional React + TypeScript
+- **Frontend**: React + TypeScript for full workspace experience
+- **UI Components**: Extension popup, sidepanel, and full-tab workspace app
 - **Styling**: Tailwind CSS
 - **AI Integration**: LLM APIs (OpenAI, Anthropic Claude, or local models)
 - **Storage**: Chrome Storage API, IndexedDB
-- **Build Tools**: Webpack/Vite with TypeScript support
+- **Build Tools**: Vite with TypeScript support for static hosting and development
 
 ## Project Structure
 ```
 bee-browser/
 ├── manifest.json              # Chrome extension manifest
+├── vite.config.ts            # Vite configuration
 ├── src/
 │   ├── background/           # Background service worker
 │   │   ├── service-worker.ts
 │   │   └── tab-monitor.ts
 │   ├── content/             # Content scripts
 │   │   └── content-script.ts
-│   ├── popup/               # Extension popup UI
+│   ├── popup/               # Extension popup UI (React)
 │   │   ├── popup.html
-│   │   ├── popup.ts
-│   │   └── popup.css
-│   ├── options/             # Options/settings page
+│   │   ├── popup.tsx
+│   │   └── components/
+│   ├── options/             # Options/settings page (React)
 │   │   ├── options.html
-│   │   └── options.ts
-│   ├── sidepanel/           # Chrome side panel (Chrome 114+)
+│   │   ├── options.tsx
+│   │   └── components/
+│   ├── sidepanel/           # Chrome side panel (React)
 │   │   ├── sidepanel.html
-│   │   └── sidepanel.ts
+│   │   ├── sidepanel.tsx
+│   │   └── components/
+│   ├── workspace/           # Full-tab workspace app (React)
+│   │   ├── workspace.html
+│   │   ├── workspace.tsx
+│   │   ├── components/
+│   │   │   ├── KnowledgeGraph.tsx
+│   │   │   ├── TabGrouping.tsx
+│   │   │   ├── SearchInterface.tsx
+│   │   │   └── HistoryTimeline.tsx
+│   │   └── pages/
+│   │       ├── Dashboard.tsx
+│   │       ├── Groups.tsx
+│   │       └── Analytics.tsx
+│   ├── shared/              # Shared React components and hooks
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   └── contexts/
 │   ├── types/               # TypeScript type definitions
 │   │   ├── chrome-api.d.ts
 │   │   └── app-types.d.ts
@@ -46,7 +67,6 @@ bee-browser/
 │       ├── storage-manager.ts
 │       └── tab-grouper.ts
 ├── tsconfig.json
-├── webpack.config.js
 ├── dist/                    # Built extension files
 └── package.json
 ```
@@ -86,8 +106,11 @@ npm run test
 - `typescript` - TypeScript compiler
 - `@types/chrome` - Chrome API type definitions
 - `@types/node` - Node.js type definitions
-- `webpack` or `vite` - Build tooling
-- `ts-loader` or `esbuild-loader` - TypeScript bundling
+- `vite` - Build tooling and development server
+- `react` & `react-dom` - React framework
+- `@types/react` & `@types/react-dom` - React type definitions
+- `tailwindcss` - CSS framework
+- `@vitejs/plugin-react` - Vite React plugin
 
 ## Development Notes
 
@@ -96,6 +119,8 @@ npm run test
 - Background scripts must be service workers (not persistent background pages)
 - Content Security Policy restrictions apply
 - All remote code execution must go through extension APIs
+- Workspace app opens in new tab for full-featured knowledge management experience
+- React components must be built and bundled for extension context
 
 ### Privacy Considerations
 - Process sensitive browsing data locally when possible
@@ -106,13 +131,17 @@ npm run test
 ### Performance Guidelines
 - Minimize background script CPU usage
 - Use efficient storage patterns
-- Implement lazy loading for UI components
+- Implement lazy loading for React components
 - Optimize LLM API calls to reduce latency
+- Use React.memo and useMemo for expensive computations in workspace
+- Implement virtual scrolling for large datasets in knowledge views
 
 ### Testing Strategy
-- Unit tests for utility functions
+- Unit tests for utility functions using Jest/Vitest
+- React component testing with React Testing Library
 - Integration tests for Chrome API interactions
 - Manual testing in Chrome developer mode
+- Test workspace experience across different screen sizes
 - Test across different Chrome versions
 
 ## Code Conventions
@@ -121,6 +150,10 @@ npm run test
 - Implement proper error handling for all Chrome API calls
 - Use async/await patterns for Chrome API promises
 - Maintain clear separation between content scripts and background scripts
+- Use React functional components with hooks
+- Implement proper prop typing with TypeScript interfaces
+- Follow React best practices for state management and component composition
+- Use consistent file naming: PascalCase for components, camelCase for utilities
 
 ## Deployment
 1. Build production version: `npm run build`

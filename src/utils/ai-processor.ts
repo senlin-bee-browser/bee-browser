@@ -1,4 +1,4 @@
-import type { AIAnalysis, AIProvider, Settings, TabInfo } from '@types/app-types';
+import type { AIAnalysis, AIProvider, Settings, TabInfo } from '../types/app-types';
 
 export class AIProcessor implements AIProvider {
   private settings: Settings;
@@ -25,7 +25,7 @@ export class AIProcessor implements AIProvider {
     }
   }
 
-  async groupTabs(tabs: TabInfo[]): Promise<import('@types/app-types').TabGroup[]> {
+  async groupTabs(tabs: TabInfo[]): Promise<import('../types/app-types').TabGroup[]> {
     if (tabs.length === 0) return [];
 
     try {
@@ -244,6 +244,7 @@ Respond only with valid JSON.`;
     for (let i = 0; i < tabs.length; i++) {
       const tab = tabs[i];
       const analysis = analyses[i];
+      if (!tab || !analysis) continue;
       const category = analysis.category;
       
       if (!groups[category]) {
@@ -313,7 +314,7 @@ Respond only with valid JSON.`;
     return sentences[0]?.trim().substring(0, 100) || 'No summary available';
   }
 
-  private getFallbackGrouping(tabs: TabInfo[]): import('@types/app-types').TabGroup[] {
+  private getFallbackGrouping(tabs: TabInfo[]): import('../types/app-types').TabGroup[] {
     const domainGroups: { [domain: string]: TabInfo[] } = {};
     
     tabs.forEach(tab => {

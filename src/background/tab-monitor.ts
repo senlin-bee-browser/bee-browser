@@ -1,5 +1,4 @@
-import type { TabInfo, ExtendedTab } from '@types/app-types';
-import type { ExtendedTab as ChromeExtendedTab } from '@types/chrome-api';
+import type { TabInfo } from '../types/app-types';
 
 export class TabMonitor {
   private activeTabs = new Map<number, TabInfo>();
@@ -19,7 +18,7 @@ export class TabMonitor {
       id: tab.id,
       url: tab.url,
       title: tab.title || 'Untitled',
-      favicon: tab.favIconUrl,
+              favicon: tab.favIconUrl || '',
       lastAccessed: Date.now(),
       domain: this.extractDomain(tab.url)
     };
@@ -90,13 +89,13 @@ export class TabMonitor {
     try {
       const results = await chrome.scripting.executeScript({
         target: { tabId },
-        function: this.getPageContent
+        func: this.getPageContent
       });
 
       if (results && results[0]?.result) {
         const tabInfo = this.activeTabs.get(tabId);
         if (tabInfo) {
-          tabInfo.content = results[0].result;
+          tabInfo.content = results[0].result as string;
         }
       }
     } catch (error) {

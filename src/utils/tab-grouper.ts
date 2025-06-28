@@ -1,6 +1,6 @@
 import { AIProcessor } from './ai-processor';
 import { StorageManager } from './storage-manager';
-import type { TabInfo, TabGroup, Settings } from '@types/app-types';
+import type { TabInfo, TabGroup, Settings } from '../types/app-types';
 
 export class TabGrouper {
   private storageManager: StorageManager;
@@ -105,6 +105,10 @@ export class TabGrouper {
     const groups = await this.aiProcessor!.groupTabs(tabs);
     const group = groups[0];
     
+    if (!group) {
+      throw new Error('Failed to create group');
+    }
+    
     if (name) {
       group.name = name;
     }
@@ -189,7 +193,7 @@ export class TabGrouper {
   private async addTabToAppropriateGroup(tabInfo: TabInfo): Promise<void> {
     const similarGroups = await this.findSimilarGroups(tabInfo);
     
-    if (similarGroups.length > 0) {
+    if (similarGroups.length > 0 && similarGroups[0]) {
       await this.addTabToGroup(tabInfo, similarGroups[0].id);
     } else {
       const newGroup = await this.createNewGroup([tabInfo]);
@@ -338,14 +342,14 @@ export class TabGrouper {
     for (let i = 6; i >= 0; i--) {
       const date = new Date(now);
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = date.toISOString().split('T')[0]!;
       activity[dateStr] = 0;
     }
 
     groups.forEach(group => {
-      const date = new Date(group.createdAt).toISOString().split('T')[0];
-      if (activity.hasOwnProperty(date)) {
-        activity[date]++;
+      const date = new Date(group.createdAt).toISOString().split('T')[0]!;
+      if (date in activity) {
+        activity[date] = (activity[date] || 0) + 1;
       }
     });
 

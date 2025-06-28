@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "lib": ["ES2020", "DOM"],
-    "moduleResolution": "node",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -19,28 +19,39 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "removeComments": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["chrome", "node"],
-    "baseUrl": "./src",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "types": ["chrome", "node", "vite/client"],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@types/*": ["./types/*"],
-      "@utils/*": ["./utils/*"],
-      "@background/*": ["./background/*"],
-      "@content/*": ["./content/*"]
+      "@/*": ["./src/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@types/*": ["./src/types/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@background/*": ["./src/background/*"],
+      "@content/*": ["./src/content/*"],
+      "@popup/*": ["./src/popup/*"],
+      "@options/*": ["./src/options/*"],
+      "@sidepanel/*": ["./src/sidepanel/*"],
+      "@workspace/*": ["./src/workspace/*"]
     }
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "vite.config.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "**/*.test.ts",
-    "**/*.spec.ts"
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
   ]
 }

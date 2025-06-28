@@ -1,4 +1,4 @@
-import type { TabGroup, Settings, StorageData } from '@types/app-types';
+import type { TabGroup, Settings, StorageData } from '../types/app-types';
 
 export class StorageManager {
   private static readonly STORAGE_KEYS = {

@@ -1,4 +1,4 @@
-import type { TabGroup, MessageType } from '@types/app-types';
+import type { TabGroup, MessageType } from '../types/app-types';
 
 class SidePanelController {
   private groups: TabGroup[] = [];
@@ -56,7 +56,7 @@ class SidePanelController {
     filterBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
-        const filter = target.dataset.filter || 'all';
+        const filter = target.dataset['filter'] || 'all';
         this.handleFilterChange(filter);
       });
     });
@@ -262,7 +262,7 @@ class SidePanelController {
     container.addEventListener('click', (e) => {
       const groupCard = (e.target as Element).closest('.group-card') as HTMLElement;
       if (groupCard) {
-        const groupId = groupCard.dataset.groupId;
+        const groupId = groupCard.dataset['groupId'];
         const group = this.groups.find(g => g.id === groupId);
         if (group) {
           this.openGroupModal(group);
@@ -311,7 +311,7 @@ class SidePanelController {
       modalGroupTabs.addEventListener('click', (e) => {
         const tabItem = (e.target as Element).closest('.tab-item') as HTMLElement;
         if (tabItem) {
-          const url = tabItem.dataset.url;
+          const url = tabItem.dataset['url'];
           if (url) {
             chrome.tabs.create({ url });
           }
@@ -395,7 +395,6 @@ class SidePanelController {
   }
 
   private toggleView(): void {
-    const viewToggle = document.getElementById('viewToggle');
     // This could toggle between different view modes (grid/list, etc.)
     console.log('Toggle view mode');
   }
@@ -446,7 +445,7 @@ class SidePanelController {
   private async analyzeCurrentTab(): Promise<void> {
     try {
       const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (activeTab.id) {
+      if (activeTab?.id) {
         await this.sendMessage({
           type: 'ANALYZE_TAB',
           payload: { tabId: activeTab.id }

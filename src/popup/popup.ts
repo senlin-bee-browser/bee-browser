@@ -1,4 +1,4 @@
-import type { TabGroup, MessageType } from '@types/app-types';
+import type { TabGroup, MessageType } from '../types/app-types';
 
 class PopupController {
   private groupCount = 0;
@@ -100,7 +100,7 @@ class PopupController {
     groupsList.addEventListener('click', (e) => {
       const groupItem = (e.target as Element).closest('.group-item') as HTMLElement;
       if (groupItem) {
-        const groupId = groupItem.dataset.groupId;
+        const groupId = groupItem.dataset['groupId'];
         if (groupId) {
           this.openGroupInSidePanel(groupId);
         }
@@ -122,7 +122,7 @@ class PopupController {
       }
 
       const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (activeTab.id) {
+      if (activeTab?.id) {
         await this.sendMessage({ 
           type: 'ANALYZE_TAB', 
           payload: { tabId: activeTab.id } 

@@ -1,4 +1,4 @@
-import type { MessageType } from '@types/app-types';
+import type { MessageType } from '../types/app-types';
 
 class ContentScript {
   private isInitialized = false;
@@ -27,7 +27,7 @@ class ContentScript {
 
   private handleMessage(
     message: MessageType,
-    sender: chrome.runtime.MessageSender,
+    _sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void
   ): void {
     switch (message.type) {

@@ -1,7 +1,7 @@
 import { TabMonitor } from './tab-monitor';
 import { StorageManager } from '@utils/storage-manager';
 import { TabGrouper } from '@utils/tab-grouper';
-import type { MessageType, Settings } from '@types/app-types';
+import type { MessageType, Settings } from '../types/app-types';
 
 class ServiceWorker {
   private tabMonitor: TabMonitor;
@@ -51,7 +51,7 @@ class ServiceWorker {
   }
 
   private async handleTabUpdated(
-    tabId: number,
+    _tabId: number,
     changeInfo: chrome.tabs.TabChangeInfo,
     tab: chrome.tabs.Tab
   ): Promise<void> {
@@ -65,7 +65,7 @@ class ServiceWorker {
     }
   }
 
-  private async handleTabRemoved(tabId: number): Promise<void> {
+  private async handleTabRemoved(tabId: number, _removeInfo: chrome.tabs.TabRemoveInfo): Promise<void> {
     try {
       await this.tabMonitor.removeTab(tabId);
     } catch (error) {
@@ -75,7 +75,7 @@ class ServiceWorker {
 
   private async handleMessage(
     message: MessageType,
-    sender: chrome.runtime.MessageSender,
+    _sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void
   ): Promise<void> {
     try {
@@ -108,7 +108,7 @@ class ServiceWorker {
       }
     } catch (error) {
       console.error('Error handling message:', error);
-      sendResponse({ error: error.message });
+      sendResponse({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 

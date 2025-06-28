@@ -1,4 +1,4 @@
-import type { Settings, MessageType } from '@types/app-types';
+import type { Settings, MessageType } from '../types/app-types';
 
 class OptionsController {
   private settings: Settings | null = null;
@@ -153,7 +153,7 @@ class OptionsController {
     }
   }
 
-  private getFormData(): Partial<Settings> {
+  private getFormData(): Settings {
     const aiProvider = (document.getElementById('aiProvider') as HTMLSelectElement).value as Settings['aiProvider'];
     const apiKey = (document.getElementById('apiKey') as HTMLInputElement).value;
     const enableAutoGrouping = (document.getElementById('enableAutoGrouping') as HTMLInputElement).checked;
@@ -163,7 +163,7 @@ class OptionsController {
 
     return {
       aiProvider,
-      apiKey: aiProvider !== 'local' ? apiKey : undefined,
+      apiKey: aiProvider !== 'local' ? apiKey : '',
       enableAutoGrouping,
       groupingFrequency,
       maxHistoryDays,
