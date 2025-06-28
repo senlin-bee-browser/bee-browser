@@ -100,3 +100,4 @@ web-ext-artifacts/
 # Development files
 *.map
 .cache/
+.cursor
