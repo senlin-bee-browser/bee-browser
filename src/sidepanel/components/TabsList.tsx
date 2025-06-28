@@ -296,9 +296,9 @@ export default function TabsList({ tabs, onSwitchToTab, onCloseTab, onCreateGrou
       <div className="bg-white rounded-lg border p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <h2 className="text-lg font-semibold text-gray-900">
-              所有标签页 ({tabs.length})
-            </h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            所有标签页 ({tabs.length})
+          </h2>
             <Button
               variant="ghost"
               size="sm"

@@ -59,7 +59,7 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
     <div className="h-full flex flex-col">
       {/* 标题和过滤器 */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">
+        <h3 className="text-lg font-semibold text-black">
           标签页列表 ({filteredTabs.length})
         </h3>
         
@@ -69,7 +69,7 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
             className={`px-3 py-1 rounded-lg text-sm transition-colors ${
               filter === 'all' 
                 ? 'bg-white text-gray-900' 
-                : 'text-white hover:bg-white hover:bg-opacity-20'
+                : 'text-black hover:bg-white hover:bg-opacity-20'
             }`}
           >
             全部
@@ -79,7 +79,7 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
             className={`px-3 py-1 rounded-lg text-sm transition-colors ${
               filter === 'active' 
                 ? 'bg-white text-gray-900' 
-                : 'text-white hover:bg-white hover:bg-opacity-20'
+                : 'text-black hover:bg-white hover:bg-opacity-20'
             }`}
           >
             活跃
@@ -89,7 +89,7 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
             className={`px-3 py-1 rounded-lg text-sm transition-colors ${
               filter === 'audible' 
                 ? 'bg-white text-gray-900' 
-                : 'text-white hover:bg-white hover:bg-opacity-20'
+                : 'text-black hover:bg-white hover:bg-opacity-20'
             }`}
           >
             音频
@@ -99,7 +99,7 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
             className={`px-3 py-1 rounded-lg text-sm transition-colors ${
               filter === 'pinned' 
                 ? 'bg-white text-gray-900' 
-                : 'text-white hover:bg-white hover:bg-opacity-20'
+                : 'text-black hover:bg-white hover:bg-opacity-20'
             }`}
           >
             已固定
@@ -110,7 +110,7 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
       {/* 标签页列表 */}
       <div className="flex-1 overflow-y-auto space-y-2">
         {filteredTabs.length === 0 ? (
-          <div className="text-center py-8 text-white text-opacity-50">
+          <div className="text-center py-8 text-black text-opacity-50">
             <Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>没有找到匹配的标签页</p>
           </div>
@@ -137,7 +137,7 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
                        }}
                      />
                    ) : (
-                     <ExternalLink className="w-4 h-4 text-white" />
+                     <ExternalLink className="w-4 h-4 text-black" />
                    )}
                  </div>
 
@@ -145,16 +145,16 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between">
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-medium text-white truncate group-hover:text-white">
+                      <h4 className="font-medium text-black truncate group-hover:text-black">
                         {tab.title || '无标题'}
                       </h4>
                       
-                      <p className="text-sm text-white text-opacity-60 truncate mt-1">
+                      <p className="text-sm text-black text-opacity-60 truncate mt-1">
                         {formatUrl(tab.url || '')}
                       </p>
                       
                       <div className="flex items-center space-x-3 mt-2">
-                        <span className="text-xs text-white text-opacity-50">
+                        <span className="text-xs text-black text-opacity-50">
                           {getDomainFromUrl(tab.url || '')}
                         </span>
                         
@@ -193,7 +193,7 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
                       className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-500 hover:bg-opacity-20 transition-all duration-200"
                       title="关闭标签页"
                     >
-                      <X className="w-4 h-4 text-white hover:text-red-400" />
+                      <X className="w-4 h-4 text-black hover:text-red-400" />
                     </button>
                   </div>
                 </div>
