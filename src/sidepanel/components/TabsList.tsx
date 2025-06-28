@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ExternalLink, X, Star, Clock, Globe, ChevronRight, FileText } from 'lucide-react'
+import { ExternalLink, X, Star, Clock, Globe, ChevronRight, FileText, Copy } from 'lucide-react'
 import { Button } from '@shared/components'
 
 // 扩展的标签页类型
@@ -97,10 +97,10 @@ function TabItem({ tab, isSelected, onSelect, onSwitchTo, onClose }: TabItemProp
         {/* 网站图标 */}
         <div className="flex-shrink-0">
           <img 
-            src={tab.favIconUrl || '/icon-16.png'} 
+            src={tab.favIconUrl } 
             alt="" 
             className="w-5 h-5 rounded"
-            onError={(e) => { e.currentTarget.src = '/icon-16.png' }}
+            onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
           />
         </div>
 
@@ -216,6 +216,32 @@ export default function TabsList({ tabs, onSwitchToTab, onCloseTab, onCreateGrou
     setSelectedTabs(new Set())
   }
 
+  const handleCopyJSON = async () => {
+    try {
+      const tabsData = filteredTabs.map(tab => ({
+        id: tab.id,
+        title: tab.title,
+        url: tab.url,
+        favIconUrl: tab.favIconUrl,
+        active: tab.active,
+        pinned: tab.pinned,
+        audible: tab.audible,
+        discarded: tab.discarded,
+        domain: tab.domain || (tab.url ? new URL(tab.url).hostname : ''),
+        description: tab.description,
+        pageAnalysis: tab.pageAnalysis
+      }))
+      
+      const jsonString = JSON.stringify(tabsData, null, 2)
+      await navigator.clipboard.writeText(jsonString)
+      
+      // 可以添加一个简单的提示（可选）
+      console.log('标签页数据已复制到剪贴板')
+    } catch (error) {
+      console.error('复制失败:', error)
+    }
+  }
+
   // 过滤标签页
   const filteredTabs = tabs.filter(tab => {
     switch (filterBy) {
@@ -269,9 +295,20 @@ export default function TabsList({ tabs, onSwitchToTab, onCloseTab, onCreateGrou
       {/* 工具栏 */}
       <div className="bg-white rounded-lg border p-4 space-y-3">
         <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
           <h2 className="text-lg font-semibold text-gray-900">
             所有标签页 ({tabs.length})
           </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleCopyJSON}
+              className="text-gray-500 hover:text-gray-700"
+              title="复制标签页JSON数据"
+            >
+              <Copy className="w-4 h-4" />
+            </Button>
+          </div>
           {selectedTabs.size > 0 && (
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-600">

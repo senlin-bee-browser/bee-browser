@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Search, Clock, TrendingUp, Bookmark, Settings, Plus } from 'lucide-react'
-import { useApp } from '@shared/contexts/AppContext'
+import { Search, Clock, Settings, Plus, Grid3X3, BarChart3 } from 'lucide-react'
+import { useApp, TabGroup } from '@shared/contexts/AppContext'
 import { useTabs } from '@shared/hooks/useTabs'
-import { TabGroup } from '@/types/app-types'
 import GroupsList from './GroupsList'
 import BrowsingTopology from './BrowsingTopology'
 import TabCards from './TabCards'
@@ -13,6 +12,7 @@ export default function NewTabApp() {
   const { tabs } = useTabs()
   const [searchQuery, setSearchQuery] = useState('')
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [activeView, setActiveView] = useState<'topology' | 'cards'>('topology')
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -24,14 +24,12 @@ export default function NewTabApp() {
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('zh-CN', {
       hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+      minute: '2-digit'
     })
   }
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('zh-CN', {
-      year: 'numeric',
       month: 'long',
       day: 'numeric',
       weekday: 'long'
@@ -40,7 +38,7 @@ export default function NewTabApp() {
 
   const getGreeting = () => {
     const hour = currentTime.getHours()
-    if (hour < 6) return '深夜好'
+    if (hour < 6) return '夜深了'
     if (hour < 12) return '早上好'
     if (hour < 18) return '下午好'
     return '晚上好'
@@ -48,12 +46,10 @@ export default function NewTabApp() {
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
-      // 检查是否是URL
       if (query.includes('.') && !query.includes(' ')) {
         const url = query.startsWith('http') ? query : `https://${query}`
         window.location.href = url
       } else {
-        // 使用默认搜索引擎
         const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`
         window.location.href = searchUrl
       }
@@ -61,102 +57,148 @@ export default function NewTabApp() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500">
-      {/* 背景装饰 */}
-      <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-      
-      {/* 主要内容 */}
-      <div className="relative z-10 flex flex-col h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
+      <div className="max-w-7xl mx-auto">
         {/* 顶部栏 */}
-        <header className="flex items-center justify-between p-6 text-white">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl">🐝</span>
-              <h1 className="text-xl font-bold">蜜蜂书签</h1>
+        <header className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-yellow-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-semibold text-sm">🐝</span>
             </div>
+            <h1 className="text-xl font-semibold text-gray-900">蜜蜂书签</h1>
           </div>
           
-          <div className="flex items-center space-x-4">
-            <button className="p-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-              <Settings className="w-5 h-5" />
+          <div className="flex items-center space-x-3">
+            <button className="w-8 h-8 rounded-full bg-white/70 backdrop-blur-sm border border-gray-200 flex items-center justify-center hover:bg-white/90 transition-all duration-200">
+              <Settings className="w-4 h-4 text-gray-600" />
             </button>
           </div>
         </header>
 
-        {/* 时间和问候语 */}
-        <div className="text-center text-white mb-8">
-          <div className="text-6xl font-light mb-2">{formatTime(currentTime)}</div>
-          <div className="text-xl opacity-90 mb-1">{formatDate(currentTime)}</div>
-          <div className="text-lg opacity-75">{getGreeting()}，今天要浏览什么呢？</div>
-        </div>
-
-        {/* 搜索框 */}
-        <div className="flex justify-center mb-8">
-          <SearchBox 
-            onSearch={handleSearch}
-            placeholder="搜索网页或输入网址..."
-          />
-        </div>
-
-        {/* 主要内容区域 - 两栏布局 */}
-        <div className="flex-1 flex space-x-6 px-6 pb-6 min-h-0">
-          {/* 左侧：分组列表 */}
-          <div className="w-80 flex-shrink-0">
-            <GroupsList 
-              groups={state.tabGroups}
-                             onGroupClick={(group: TabGroup) => {
-                 // TODO: 处理分组点击
-                 console.log('点击分组:', group)
-               }}
-            />
+        {/* 欢迎区域 */}
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center space-x-6 mb-6">
+            <div className="text-right">
+              <div className="text-4xl font-light text-gray-900 mb-1">{formatTime(currentTime)}</div>
+              <div className="text-lg text-gray-600">{formatDate(currentTime)}</div>
+            </div>
+            <div className="w-px h-16 bg-gray-300"></div>
+            <div className="text-left">
+              <div className="text-2xl font-medium text-gray-900">{getGreeting()}</div>
+              <div className="text-lg text-gray-600">开始新的浏览之旅</div>
+            </div>
           </div>
 
-          {/* 右侧：拓扑图和标签页卡片 */}
-          <div className="flex-1 flex flex-col space-y-6 min-w-0">
-            {/* 浏览路径拓扑图 */}
-            <div className="h-80 bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-6">
-                           <BrowsingTopology 
-               tabs={tabs}
-               onNodeClick={(tab: chrome.tabs.Tab) => {
-                 if (tab.id) {
-                   chrome.tabs.update(tab.id, { active: true })
-                 }
-               }}
-             />
-            </div>
+          {/* 搜索框 */}
+          <div className="max-w-2xl mx-auto">
+            <SearchBox 
+              onSearch={handleSearch}
+              placeholder="搜索网页或输入网址..."
+            />
+          </div>
+        </div>
 
-            {/* 标签页卡片列表 */}
-            <div className="flex-1 bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-6 min-h-0">
-                             <TabCards 
-                 tabs={tabs}
-                 searchQuery={searchQuery}
-                 onTabClick={(tab: chrome.tabs.Tab) => {
-                   if (tab.id) {
-                     chrome.tabs.update(tab.id, { active: true })
-                   }
-                 }}
-                 onTabClose={(tabId: number) => {
-                   chrome.tabs.remove(tabId)
+        {/* 主要内容区域 */}
+        <div className="grid grid-cols-12 gap-6">
+          {/* 左侧：分组列表 */}
+          <div className="col-span-3">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-gray-200 p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-gray-900">标签组</h2>
+                <button className="w-6 h-6 rounded-md bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 transition-colors">
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+                             <GroupsList 
+                 groups={[]}
+                 onGroupClick={(group: any) => {
+                   console.log('点击分组:', group)
                  }}
                />
+            </div>
+          </div>
+
+          {/* 右侧：主视图 */}
+          <div className="col-span-9">
+            {/* 视图切换 */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-1 bg-white/70 backdrop-blur-sm rounded-lg p-1 border border-gray-200">
+                <button
+                  onClick={() => setActiveView('topology')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    activeView === 'topology' 
+                      ? 'bg-blue-500 text-white shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span>拓扑视图</span>
+                </button>
+                <button
+                  onClick={() => setActiveView('cards')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    activeView === 'cards' 
+                      ? 'bg-blue-500 text-white shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <Grid3X3 className="w-4 h-4" />
+                  <span>卡片视图</span>
+                </button>
+              </div>
+
+              <div className="text-sm text-gray-700">
+                {tabs.length} 个活跃标签页
+              </div>
+            </div>
+
+            {/* 内容视图 */}
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-sm overflow-hidden" style={{ height: '500px' }}>
+              {activeView === 'topology' ? (
+                <BrowsingTopology 
+                  tabs={tabs}
+                  onNodeClick={(tab: chrome.tabs.Tab) => {
+                    if (tab.id) {
+                      chrome.tabs.update(tab.id, { active: true })
+                    }
+                  }}
+                />
+              ) : (
+                <div className="h-full overflow-y-auto p-6">
+                  <TabCards 
+                    tabs={tabs}
+                    searchQuery={searchQuery}
+                    onTabClick={(tab: chrome.tabs.Tab) => {
+                      if (tab.id) {
+                        chrome.tabs.update(tab.id, { active: true })
+                      }
+                    }}
+                    onTabClose={(tabId: number) => {
+                      chrome.tabs.remove(tabId)
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* 底部快捷操作 */}
-        <footer className="p-6 text-center text-white text-opacity-75">
-          <div className="flex justify-center space-x-6">
-            <button className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+        <footer className="mt-8 text-center">
+          <div className="inline-flex items-center space-x-2 bg-white/70 backdrop-blur-sm rounded-xl border border-gray-200 p-2">
+            <button className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               <Plus className="w-4 h-4" />
-              <span>添加书签</span>
+              <span>新建书签</span>
             </button>
-            <button className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+            <div className="w-px h-4 bg-gray-300"></div>
+            <button className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
               <Clock className="w-4 h-4" />
               <span>历史记录</span>
             </button>
-            <button className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
-              <TrendingUp className="w-4 h-4" />
-              <span>统计信息</span>
+            <div className="w-px h-4 bg-gray-300"></div>
+            <button className="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+              <BarChart3 className="w-4 h-4" />
+              <span>浏览统计</span>
             </button>
           </div>
         </footer>

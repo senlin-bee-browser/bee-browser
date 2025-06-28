@@ -35,27 +35,20 @@ export default function GroupsList({ groups, onGroupClick }: GroupsListProps) {
   }
 
   return (
-    <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-6 h-full">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">标签分组</h2>
-        <span className="text-white text-opacity-75 text-sm">
-          {groups.length} 个分组
-        </span>
-      </div>
-
+    <div className="h-full">
       <div className="space-y-3 max-h-96 overflow-y-auto">
         {groups.length === 0 ? (
-          <div className="text-center py-8 text-white text-opacity-50">
+          <div className="text-center py-8 text-gray-500">
             <Folder className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>暂无分组</p>
-            <p className="text-sm mt-1">开始浏览网页会自动创建分组</p>
+            <p className="text-gray-600">暂无分组</p>
+            <p className="text-sm mt-1 text-gray-500">开始浏览网页会自动创建分组</p>
           </div>
         ) : (
           groups.map((group) => (
             <div
               key={group.id}
               onClick={() => onGroupClick(group)}
-              className="group cursor-pointer p-4 rounded-lg bg-white bg-opacity-5 hover:bg-opacity-20 transition-all duration-200 border border-white border-opacity-10 hover:border-opacity-30"
+              className="group cursor-pointer p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all duration-200 border border-gray-200 hover:border-gray-300 hover:shadow-sm"
             >
               <div className="flex items-start space-x-3">
                 <div className={`p-2 rounded-lg ${getGroupColor(group)} text-white`}>
@@ -63,16 +56,16 @@ export default function GroupsList({ groups, onGroupClick }: GroupsListProps) {
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-white truncate group-hover:text-white">
+                  <h3 className="font-medium text-gray-900 truncate group-hover:text-gray-900">
                     {group.name}
                   </h3>
                   
-                  <p className="text-sm text-white text-opacity-75 mt-1 line-clamp-2">
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                     {group.description || '无描述'}
                   </p>
                   
                   <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center space-x-4 text-xs text-white text-opacity-60">
+                    <div className="flex items-center space-x-4 text-xs text-gray-500">
                       <span className="flex items-center space-x-1">
                         <Hash className="w-3 h-3" />
                         <span>{group.tabs?.length || 0} 个标签</span>
@@ -90,7 +83,7 @@ export default function GroupsList({ groups, onGroupClick }: GroupsListProps) {
                       {group.tabs?.slice(0, 3).map((tab, index) => (
                         <div
                           key={index}
-                          className="w-4 h-4 rounded-sm bg-white bg-opacity-20"
+                          className="w-4 h-4 rounded-sm bg-gray-200 border border-gray-300"
                           title={tab.title}
                         >
                           {tab.favicon && (
@@ -103,7 +96,7 @@ export default function GroupsList({ groups, onGroupClick }: GroupsListProps) {
                         </div>
                       ))}
                       {(group.tabs?.length || 0) > 3 && (
-                        <div className="w-4 h-4 rounded-sm bg-white bg-opacity-20 flex items-center justify-center text-xs text-white">
+                        <div className="w-4 h-4 rounded-sm bg-gray-200 border border-gray-300 flex items-center justify-center text-xs text-gray-600">
                           +
                         </div>
                       )}

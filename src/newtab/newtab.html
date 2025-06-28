@@ -11,12 +11,34 @@
       padding: 0;
       width: 100vw;
       height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'SF Pro Display', 'Helvetica Neue', sans-serif;
+      color: #1d1d1f;
+      overflow: hidden;
     }
     #root {
       width: 100%;
       height: 100%;
+    }
+    
+    /* Apple-style scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(0,0,0,0.3);
+    }
+    
+    /* Apple-style selection */
+    ::selection {
+      background: rgba(0, 122, 255, 0.2);
     }
   </style>
 </head>
