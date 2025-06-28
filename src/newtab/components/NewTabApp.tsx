@@ -9,7 +9,7 @@ import SearchBox from './SearchBox'
 
 export default function NewTabApp() {
   const { state } = useApp()
-  const { tabs } = useTabs()
+  const { tabs } = useTabs({ enableEnhancement: false })
   const [searchQuery, setSearchQuery] = useState('')
   const [currentTime, setCurrentTime] = useState(new Date())
   const [activeView, setActiveView] = useState<'topology' | 'cards'>('topology')

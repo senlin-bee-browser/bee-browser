@@ -86,7 +86,9 @@ function DebugInfo({ debugInfo }: { debugInfo: DebugInfo }) {
 
 export default function SidepanelApp() {
   const { state, dispatch } = useApp()
-  const { tabs, switchToTab, closeTab, groupTabs } = useTabs()
+  const { tabs, switchToTab, closeTab, groupTabs } = useTabs({ 
+    enableEnhancement: false // 禁用增强功能以提高加载速度
+  })
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<'all' | 'recent' | 'favorites'>('all')
   const [selectedGroup, setSelectedGroup] = useState<any>(null)

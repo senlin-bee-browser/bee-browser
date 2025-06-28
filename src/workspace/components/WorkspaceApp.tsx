@@ -333,7 +333,7 @@ function NewGroupModal({ isOpen, onClose, onSubmit, availableTabs }: NewGroupMod
 
 export default function WorkspaceApp() {
   const { state, dispatch } = useApp()
-  const { tabs } = useTabs()
+  const { tabs } = useTabs({ enableEnhancement: false })
   const [activePage, setActivePage] = useState<ActivePage>('dashboard')
   const [searchQuery, setSearchQuery] = useState('')
   const [showNewGroupModal, setShowNewGroupModal] = useState(false)

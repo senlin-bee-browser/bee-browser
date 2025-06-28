@@ -70,7 +70,7 @@ function QuickAction({ title, description, icon: Icon, onClick }: QuickActionPro
 
 export default function Dashboard() {
   const { state, dispatch } = useApp()
-  const { tabs } = useTabs()
+  const { tabs } = useTabs({ enableEnhancement: false })
   const [showAnalyzeModal, setShowAnalyzeModal] = useState(false)
   const [analyzeTabs, setAnalyzeTabs] = useState<chrome.tabs.Tab[]>([])
 

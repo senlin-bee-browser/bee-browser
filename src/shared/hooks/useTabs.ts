@@ -12,13 +12,23 @@ interface EnhancedTab extends chrome.tabs.Tab {
   }
 }
 
-export function useTabs() {
+interface UseTabsOptions {
+  enableEnhancement?: boolean // 是否启用页面增强功能
+}
+
+export function useTabs(options: UseTabsOptions = {}) {
+  const { enableEnhancement = true } = options
   const [tabs, setTabs] = useState<EnhancedTab[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   // 从页面内容提取简介信息
   const extractPageDescription = useCallback(async (tab: chrome.tabs.Tab): Promise<string> => {
+    // 如果禁用增强功能，直接返回空字符串
+    if (!enableEnhancement) {
+      return ''
+    }
+
     if (!tab.id || !tab.url || tab.url.startsWith('chrome://')) {
       return ''
     }
@@ -88,7 +98,7 @@ export function useTabs() {
     }
     
     return ''
-  }, [])
+  }, [enableEnhancement])
 
   // 获取域名
   const extractDomain = useCallback((url: string): string => {
