@@ -48,7 +48,7 @@ function GroupCard({ group, onViewGroup }: GroupCardProps) {
               src={tab.favIconUrl } 
               alt="" 
               className="w-4 h-4"
-              onError={(e) => { e.currentTarget.src = '/icon-16.png' }}
+              onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
             />
             <span className="truncate">{tab.title}</span>
           </div>
@@ -621,7 +621,7 @@ export default function SidepanelApp() {
                       src={tab.favIconUrl } 
                       alt="" 
                       className="w-5 h-5"
-                      onError={(e) => { e.currentTarget.src = '/icon-16.png' }}
+                      onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{tab.title}</p>

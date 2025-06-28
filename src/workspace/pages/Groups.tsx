@@ -104,7 +104,7 @@ function GroupCard({ group, onEdit, onDelete, onOpenTabs }: GroupCardProps) {
               src={tab.favIconUrl } 
               alt="" 
               className="w-4 h-4 flex-shrink-0"
-              onError={(e) => { e.currentTarget.src = '/icon-16.png' }}
+              onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
             />
             <span className="truncate text-gray-700">{tab.title}</span>
           </div>

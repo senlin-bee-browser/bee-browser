@@ -100,7 +100,7 @@ function TabItem({ tab, isSelected, onSelect, onSwitchTo, onClose }: TabItemProp
             src={tab.favIconUrl } 
             alt="" 
             className="w-5 h-5 rounded"
-            onError={(e) => { e.currentTarget.src = '/icon-16.png' }}
+            onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
           />
         </div>
 
