@@ -234,6 +234,7 @@ export default function PopupApp() {
         <input
           type="text"
           placeholder="搜索你的标签页..."
+          autoFocus
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
