@@ -327,7 +327,7 @@ export default function SidepanelApp() {
       console.log(groups)
       Object.entries(groups).map(async ([title, tabs])=>{
         const groupId = await chrome.tabs.group({ 
-          tabIds: tabs.map(t=>+t.id),
+          tabIds: tabs.map(t=>+t.id).filter(Boolean),
         })
         await chrome.tabGroups.update(groupId, {title})
       })
