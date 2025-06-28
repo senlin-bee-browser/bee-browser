@@ -72,6 +72,12 @@ export default defineConfig({
       '@shared': resolve(__dirname, 'src/shared'),
       '@utils': resolve(__dirname, 'src/utils'),
       '@types': resolve(__dirname, 'src/types'),
+      '@background': resolve(__dirname, 'src/background'),
+      '@content': resolve(__dirname, 'src/content'),
+      '@popup': resolve(__dirname, 'src/popup'),
+      '@options': resolve(__dirname, 'src/options'),
+      '@sidepanel': resolve(__dirname, 'src/sidepanel'),
+      '@workspace': resolve(__dirname, 'src/workspace'),
     }
   },
   define: {

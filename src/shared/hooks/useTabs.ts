@@ -116,11 +116,18 @@ export function useTabs() {
       setLoading(true)
       setError(null)
       
-      const allTabs = await chrome.tabs.query({})
+      const allTabs = await chrome.tabs.query({ currentWindow: true })
+      
+      // Filter out extension pages (workspace, options, sidepanel, newtab)
+      const filteredTabs = allTabs.filter(tab => {
+        if (!tab.url) return true
+        const isExtensionPage = tab.url.startsWith(`chrome-extension://${chrome.runtime.id}/`)
+        return !isExtensionPage
+      })
       
       // 并行增强所有标签页数据
       const enhancedTabs = await Promise.all(
-        allTabs.map(tab => enhanceTabData(tab))
+        filteredTabs.map(tab => enhanceTabData(tab))
       )
       
       setTabs(enhancedTabs)

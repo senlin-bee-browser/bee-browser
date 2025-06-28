@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ExternalLink, X, Star, Clock, Globe, ChevronRight, FileText, Copy } from 'lucide-react'
+import { X, Clock, Globe, FileText, Copy } from 'lucide-react'
 import { Button } from '@shared/components'
 
 // 扩展的标签页类型

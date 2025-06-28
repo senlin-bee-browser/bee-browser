@@ -7,6 +7,7 @@ interface TabGroup {
   category: string
   createdAt: Date
   lastUpdated: Date
+  nativeGroupId?: number
 }
 
 interface AppState {

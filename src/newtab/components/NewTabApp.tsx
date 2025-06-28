@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Search, Clock, Settings, Plus, Grid3X3, BarChart3 } from 'lucide-react'
-import { useApp, TabGroup } from '@shared/contexts/AppContext'
+import { Clock, Settings, Plus, Grid3X3, BarChart3 } from 'lucide-react'
 import { useTabs } from '@shared/hooks/useTabs'
 import GroupsList from './GroupsList'
 import BrowsingTopology from './BrowsingTopology'
@@ -8,9 +7,7 @@ import TabCards from './TabCards'
 import SearchBox from './SearchBox'
 
 export default function NewTabApp() {
-  const { state } = useApp()
   const { tabs } = useTabs()
-  const [searchQuery, setSearchQuery] = useState('')
   const [currentTime, setCurrentTime] = useState(new Date())
   const [activeView, setActiveView] = useState<'topology' | 'cards'>('topology')
 
@@ -167,7 +164,7 @@ export default function NewTabApp() {
                 <div className="h-full overflow-y-auto p-6">
                   <TabCards 
                     tabs={tabs}
-                    searchQuery={searchQuery}
+                    searchQuery=""
                     onTabClick={(tab: chrome.tabs.Tab) => {
                       if (tab.id) {
                         chrome.tabs.update(tab.id, { active: true })

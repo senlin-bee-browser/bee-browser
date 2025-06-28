@@ -3,6 +3,7 @@ import { Search, RefreshCw, Settings, ExternalLink, MoreVertical, List, Layers, 
 import { Button, Loading } from '@shared/components'
 import { useApp } from '@shared/contexts/AppContext'
 import { useTabs } from '@shared/hooks/useTabs'
+import { AIProcessor } from '@utils/ai-processor'
 import TabsList from './TabsList'
 
 interface GroupCardProps {
@@ -86,7 +87,7 @@ function DebugInfo({ debugInfo }: { debugInfo: DebugInfo }) {
 
 export default function SidepanelApp() {
   const { state, dispatch } = useApp()
-  const { tabs, switchToTab, closeTab, groupTabs } = useTabs()
+  const { tabs, switchToTab, closeTab } = useTabs()
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<'all' | 'recent' | 'favorites'>('all')
   const [selectedGroup, setSelectedGroup] = useState<any>(null)
@@ -294,45 +295,15 @@ export default function SidepanelApp() {
     try {
       dispatch({ type: 'SET_LOADING', payload: true })
       
-      const tabs = await chrome.tabs.query({ currentWindow: true })
-      const tabsData = tabs.map(tab => ({
-        id: tab.id,
-        title: tab.title,
-        url: tab.url,
-        favIconUrl: tab.favIconUrl,
-        active: tab.active,
-        pinned: tab.pinned,
-        audible: tab.audible,
-        discarded: tab.discarded,
-      }))
+      // Use AIProcessor for complete analysis workflow
+      const { createdGroups } = await AIProcessor.analyzeCurrentTabs()
 
-      const r = await fetch("https://api.coze.cn/v1/workflow/run", {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer pat_gqb2WMNGMLRDwB85gyIhXxAxJDJZ7BM2bClu8H5imVrvvxV7oUMY8iLpdNUUMvSj",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          "workflow_id": "7520894694882525223",
-          "parameters": {
-            "input": tabsData //塞入标签页数组
-          }
-        })
-      })
-      const llmOutput = JSON.parse((await r.json()).data).output
-      const results = JSON.parse(llmOutput)
-      console.log(results)
-
-      const groups = Object.groupBy(results, (g) => g.category)
-      console.log(groups)
-      Object.entries(groups).map(async ([title, tabs])=>{
-        const groupId = await chrome.tabs.group({ 
-          tabIds: tabs.map(t=>+t.id).filter(Boolean),
-        })
-        await chrome.tabGroups.update(groupId, {title})
+      // Add created groups to app state (if needed for sidepanel)
+      createdGroups.forEach(group => {
+        dispatch({ type: 'ADD_TAB_GROUP', payload: group })
       })
       
-      // 重新加载 groups 以获取可能的新分组
+      // Reload groups to show the new native groups
       await loadGroups(false)
       
       console.log('✅ 当前标签页分析完成')

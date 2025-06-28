@@ -10,7 +10,7 @@ interface DomainNode {
   domain: string
   tabs: chrome.tabs.Tab[]
   isActive: boolean
-  favicon?: string
+  favicon: string | undefined
   position: { x: number; y: number }
 }
 
@@ -114,7 +114,7 @@ export default function BrowsingTopology({ tabs, onNodeClick }: BrowsingTopology
           }}></div>
 
           {/* 域名节点 */}
-          {domainNodes.map((node, index) => (
+          {domainNodes.map((node) => (
             <div
               key={node.domain}
               className="absolute cursor-pointer group"
