@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bee Browser Knowledge Panel</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="sidepanel-container">
+    <header class="panel-header">
+      <div class="header-content">
+        <h1>🐝 Knowledge Panel</h1>
+        <div class="header-actions">
+          <button id="refreshBtn" class="header-btn" title="Refresh">🔄</button>
+          <button id="settingsBtn" class="header-btn" title="Settings">⚙️</button>
+        </div>
+      </div>
+      
+      <div class="search-section">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search your knowledge base..." class="search-input">
+          <button id="searchBtn" class="search-btn">🔍</button>
+        </div>
+        <div class="quick-filters">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="recent">Recent</button>
+          <button class="filter-btn" data-filter="favorites">Favorites</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="panel-content">
+      <div class="stats-overview">
+        <div class="stat-card">
+          <span class="stat-number" id="totalGroups">0</span>
+          <span class="stat-label">Groups</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="totalTabs">0</span>
+          <span class="stat-label">Tabs</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="categories">0</span>
+          <span class="stat-label">Categories</span>
+        </div>
+      </div>
+
+      <div class="content-sections">
+        <section class="section" id="groupsSection">
+          <div class="section-header">
+            <h2>Tab Groups</h2>
+            <div class="section-actions">
+              <select id="sortSelect" class="sort-select">
+                <option value="recent">Most Recent</option>
+                <option value="name">Name A-Z</option>
+                <option value="size">Group Size</option>
+                <option value="category">Category</option>
+              </select>
+              <button id="viewToggle" class="view-toggle" title="Toggle View">⊞</button>
+            </div>
+          </div>
+          
+          <div id="groupsContainer" class="groups-container">
+            <div class="loading-state">
+              <div class="loading-spinner"></div>
+              <p>Loading your knowledge groups...</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="insightsSection">
+          <div class="section-header">
+            <h2>Insights</h2>
+            <button id="generateInsights" class="insights-btn">Generate</button>
+          </div>
+          
+          <div id="insightsContainer" class="insights-container">
+            <div class="insight-card">
+              <h4>Browsing Patterns</h4>
+              <p>Most active category: <span id="topCategory">Loading...</span></p>
+              <p>Peak browsing time: <span id="peakTime">Loading...</span></p>
+            </div>
+            
+            <div class="insight-card">
+              <h4>Productivity Score</h4>
+              <div class="score-circle">
+                <span id="productivityScore">--</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div class="floating-actions">
+      <button id="exportBtn" class="fab" title="Export Data">📤</button>
+      <button id="analyzeCurrentBtn" class="fab primary" title="Analyze Current Tab">🔍</button>
+    </div>
+  </div>
+
+  <!-- Group Detail Modal -->
+  <div id="groupModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalGroupName">Group Name</h3>
+        <button id="closeModal" class="close-btn">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="group-meta">
+          <span class="meta-item">
+            <strong>Category:</strong> <span id="modalGroupCategory">Category</span>
+          </span>
+          <span class="meta-item">
+            <strong>Created:</strong> <span id="modalGroupCreated">Date</span>
+          </span>
+          <span class="meta-item">
+            <strong>Confidence:</strong> <span id="modalGroupConfidence">0%</span>
+          </span>
+        </div>
+        
+        <div class="group-description">
+          <p id="modalGroupDescription">Description</p>
+        </div>
+        
+        <div class="group-keywords">
+          <h4>Keywords</h4>
+          <div id="modalGroupKeywords" class="keywords-list"></div>
+        </div>
+        
+        <div class="group-tabs">
+          <h4>Tabs in this group</h4>
+          <div id="modalGroupTabs" class="tabs-list"></div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="openAllTabs" class="modal-btn primary">Open All Tabs</button>
+        <button id="deleteGroup" class="modal-btn danger">Delete Group</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

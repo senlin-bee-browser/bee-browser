@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bee Browser</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="popup-header">
+      <div class="logo">
+        <h1>🐝 Bee Browser</h1>
+      </div>
+      <button id="settingsBtn" class="settings-btn" title="Settings">⚙️</button>
+    </header>
+
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search your knowledge..." class="search-input">
+      <button id="searchBtn" class="search-btn">🔍</button>
+    </div>
+
+    <div class="stats-container">
+      <div class="stat-item">
+        <span class="stat-label">Active Groups:</span>
+        <span id="groupCount" class="stat-value">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Total Tabs:</span>
+        <span id="tabCount" class="stat-value">0</span>
+      </div>
+    </div>
+
+    <div class="actions-container">
+      <button id="analyzeBtn" class="action-btn primary">
+        🔄 Analyze Current Tab
+      </button>
+      <button id="groupBtn" class="action-btn">
+        📁 Group Similar Tabs
+      </button>
+      <button id="sidepanelBtn" class="action-btn">
+        📊 Open Knowledge Panel
+      </button>
+    </div>
+
+    <div class="recent-groups">
+      <h3>Recent Groups</h3>
+      <div id="groupsList" class="groups-list">
+        <div class="loading">Loading groups...</div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button id="exportBtn" class="quick-action">Export Data</button>
+      <button id="syncBtn" class="quick-action">Sync Now</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

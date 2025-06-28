@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bee Browser Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>🐝 Bee Browser Settings</h1>
+      <p class="subtitle">Configure your AI-powered browsing assistant</p>
+    </header>
+
+    <main class="main-content">
+      <section class="settings-section">
+        <h2>AI Provider Settings</h2>
+        <div class="setting-group">
+          <label for="aiProvider" class="setting-label">AI Provider:</label>
+          <select id="aiProvider" class="setting-select">
+            <option value="openai">OpenAI GPT</option>
+            <option value="anthropic">Anthropic Claude</option>
+            <option value="local">Local Analysis</option>
+          </select>
+          <p class="setting-description">Choose your preferred AI provider for content analysis</p>
+        </div>
+
+        <div class="setting-group" id="apiKeyGroup">
+          <label for="apiKey" class="setting-label">API Key:</label>
+          <div class="input-group">
+            <input type="password" id="apiKey" class="setting-input" placeholder="Enter your API key">
+            <button type="button" id="toggleApiKey" class="toggle-btn">👁️</button>
+          </div>
+          <p class="setting-description">Your API key is stored locally and never shared</p>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>Grouping Behavior</h2>
+        <div class="setting-group">
+          <label class="setting-checkbox">
+            <input type="checkbox" id="enableAutoGrouping">
+            <span class="checkmark"></span>
+            Enable automatic tab grouping
+          </label>
+          <p class="setting-description">Automatically organize similar tabs into groups</p>
+        </div>
+
+        <div class="setting-group">
+          <label for="groupingFrequency" class="setting-label">Grouping Frequency:</label>
+          <select id="groupingFrequency" class="setting-select">
+            <option value="realtime">Real-time</option>
+            <option value="hourly">Hourly</option>
+            <option value="daily">Daily</option>
+          </select>
+          <p class="setting-description">How often to analyze and group new tabs</p>
+        </div>
+
+        <div class="setting-group">
+          <label for="maxHistoryDays" class="setting-label">History Retention (days):</label>
+          <input type="number" id="maxHistoryDays" class="setting-input" min="1" max="365" value="30">
+          <p class="setting-description">How many days of browsing history to analyze</p>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>Privacy & Security</h2>
+        <div class="setting-group">
+          <label class="setting-checkbox">
+            <input type="checkbox" id="privacyMode">
+            <span class="checkmark"></span>
+            Privacy mode
+          </label>
+          <p class="setting-description">Process data locally only, disable cloud AI features</p>
+        </div>
+
+        <div class="setting-group">
+          <button id="clearDataBtn" class="danger-btn">Clear All Data</button>
+          <p class="setting-description">Remove all stored tab groups and analysis data</p>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>Data Management</h2>
+        <div class="setting-group">
+          <div class="data-actions">
+            <button id="exportBtn" class="action-btn">📤 Export Data</button>
+            <button id="importBtn" class="action-btn">📥 Import Data</button>
+            <input type="file" id="importFile" accept=".json" style="display: none;">
+          </div>
+          <p class="setting-description">Backup and restore your browsing data</p>
+        </div>
+
+        <div class="setting-group">
+          <div class="storage-info">
+            <h4>Storage Usage</h4>
+            <div class="storage-bar">
+              <div id="storageUsed" class="storage-used" style="width: 0%"></div>
+            </div>
+            <p id="storageText" class="storage-text">0 MB used of 10 MB</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2>Analytics</h2>
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <h4>Total Groups</h4>
+            <span id="totalGroups" class="analytics-value">0</span>
+          </div>
+          <div class="analytics-card">
+            <h4>Total Tabs</h4>
+            <span id="totalTabs" class="analytics-value">0</span>
+          </div>
+          <div class="analytics-card">
+            <h4>Avg. per Group</h4>
+            <span id="avgTabsPerGroup" class="analytics-value">0</span>
+          </div>
+          <div class="analytics-card">
+            <h4>Last Sync</h4>
+            <span id="lastSync" class="analytics-value">Never</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-actions">
+        <button id="resetBtn" class="reset-btn">Reset to Defaults</button>
+        <div class="save-actions">
+          <button id="saveBtn" class="save-btn">Save Settings</button>
+          <span id="saveStatus" class="save-status"></span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <div id="confirmModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <h3 id="modalTitle">Confirm Action</h3>
+      <p id="modalMessage">Are you sure?</p>
+      <div class="modal-actions">
+        <button id="modalCancel" class="modal-btn cancel">Cancel</button>
+        <button id="modalConfirm" class="modal-btn confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
