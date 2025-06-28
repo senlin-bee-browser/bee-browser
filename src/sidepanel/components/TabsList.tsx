@@ -97,10 +97,10 @@ function TabItem({ tab, isSelected, onSelect, onSwitchTo, onClose }: TabItemProp
         {/* 网站图标 */}
         <div className="flex-shrink-0">
           <img 
-            src={tab.favIconUrl } 
+            src={tab.favIconUrl || '/icons/icon-16.png'} 
             alt="" 
             className="w-5 h-5 rounded"
-            onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
+            onError={(e) => { e.currentTarget.src = '/icons/icon-16.png' }}
           />
         </div>
 

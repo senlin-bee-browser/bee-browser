@@ -26,14 +26,16 @@ export default function PopupApp() {
     }
   }
 
-  const handleAnalyzeCurrentTab = async () => {
+  const handleAnalyzeCurrentTabs = async () => {
     dispatch({ type: 'SET_LOADING', payload: true })
     try {
-      const [currentTab] = await chrome.tabs.query({ active: true, currentWindow: true })
-      // TODO: Implement AI analysis
-      console.log('Analyzing tab:', currentTab)
+      // Get all tabs in the current window and open workspace
+      const allTabs = await chrome.tabs.query({ currentWindow: true })
+      console.log('Analyzing tabs:', allTabs)
+      // Open workspace for full analysis experience
+      handleOpenWorkspace()
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to analyze current tab' })
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to analyze current tabs' })
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false })
     }
@@ -105,12 +107,12 @@ export default function PopupApp() {
       {/* Actions */}
       <div className="space-y-2">
         <Button
-          onClick={handleAnalyzeCurrentTab}
+          onClick={handleAnalyzeCurrentTabs}
           loading={state.isLoading}
           className="w-full justify-start"
         >
           <RefreshCw className="w-4 h-4 mr-2" />
-          Analyze Current Tab
+          Analyze Current Tabs
         </Button>
         
         <Button

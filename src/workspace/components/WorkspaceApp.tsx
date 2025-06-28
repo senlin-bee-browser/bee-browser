@@ -286,10 +286,10 @@ function NewGroupModal({ isOpen, onClose, onSubmit, availableTabs }: NewGroupMod
                           className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                         />
                         <img 
-                          src={tab.favIconUrl || '/assets/icons/icon-16.png'} 
+                          src={tab.favIconUrl || '/icons/icon-16.png'} 
                           alt="" 
                           className="w-4 h-4"
-                          onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
+                          onError={(e) => { e.currentTarget.src = '/icons/icon-16.png' }}
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-900 truncate">
@@ -469,7 +469,10 @@ export default function WorkspaceApp() {
         )
       }
       
-      return <GroupTabDetail group={group} />
+      return <GroupTabDetail 
+        group={group} 
+        onGroupDeleted={() => setActivePage('dashboard')}
+      />
     }
 
     switch (activePage) {

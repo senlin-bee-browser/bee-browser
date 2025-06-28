@@ -45,10 +45,10 @@ function GroupCard({ group, onViewGroup }: GroupCardProps) {
         {group.tabs.slice(0, 3).map((tab, index) => (
           <div key={index} className="flex items-center space-x-2 text-xs">
             <img 
-              src={tab.favIconUrl } 
+              src={tab.favIconUrl || '/icons/icon-16.png'} 
               alt="" 
               className="w-4 h-4"
-              onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
+              onError={(e) => { e.currentTarget.src = '/icons/icon-16.png' }}
             />
             <span className="truncate">{tab.title}</span>
           </div>
@@ -632,10 +632,10 @@ export default function SidepanelApp() {
                 {selectedGroup.tabs.map((tab: any, index: number) => (
                   <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     <img 
-                      src={tab.favIconUrl } 
+                      src={tab.favIconUrl || '/icons/icon-16.png'} 
                       alt="" 
                       className="w-5 h-5"
-                      onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
+                      onError={(e) => { e.currentTarget.src = '/icons/icon-16.png' }}
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{tab.title}</p>

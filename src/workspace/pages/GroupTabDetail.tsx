@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { ExternalLink, X, Star, StarOff, Globe, Clock, MoreVertical, Search } from 'lucide-react'
+import { ExternalLink, X, Star, StarOff, Globe, Clock, MoreVertical, Search, Trash2 } from 'lucide-react'
 import { Button } from '@shared/components'
+import { useApp } from '@shared/contexts/AppContext'
 import type { TabGroup } from '@shared/contexts/AppContext'
 
 interface GroupTabDetailProps {
   group: TabGroup
+  onGroupDeleted?: () => void
 }
 
 interface TabItemProps {
@@ -59,10 +61,10 @@ function TabItem({ tab, onOpenTab, onCloseTab, onSwitchToTab }: TabItemProps) {
         {/* Favicon */}
         <div className="flex-shrink-0 mt-1">
           <img 
-            src={tab.favIconUrl || '/assets/icons/icon-16.png'} 
+            src={tab.favIconUrl || '/icons/icon-16.png'} 
             alt="" 
             className="w-5 h-5"
-            onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
+            onError={(e) => { e.currentTarget.src = '/icons/icon-16.png' }}
           />
         </div>
 
@@ -153,9 +155,44 @@ function TabItem({ tab, onOpenTab, onCloseTab, onSwitchToTab }: TabItemProps) {
   )
 }
 
-export default function GroupTabDetail({ group }: GroupTabDetailProps) {
+export default function GroupTabDetail({ group, onGroupDeleted }: GroupTabDetailProps) {
+  const { dispatch } = useApp()
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'title' | 'domain' | 'recent'>('title')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
+  const handleDeleteGroup = async () => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true })
+      
+      // If this is a native Chrome tab group, ungroup the tabs
+      if (group.nativeGroupId) {
+        const tabIds = group.tabs.map(tab => tab.id).filter(id => id !== undefined) as number[]
+        if (tabIds.length > 0) {
+          await chrome.tabs.ungroup(tabIds)
+        }
+      }
+      
+      // Remove from app state
+      dispatch({ type: 'DELETE_TAB_GROUP', payload: group.id })
+      
+      // Navigate back to dashboard
+      if (onGroupDeleted) {
+        onGroupDeleted()
+      }
+      
+      console.log('✅ Deleted group:', group.name)
+    } catch (error) {
+      console.error('❌ Failed to delete group:', error)
+      dispatch({ 
+        type: 'SET_ERROR', 
+        payload: `Failed to delete group: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      })
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false })
+      setShowDeleteConfirm(false)
+    }
+  }
 
   const handleOpenTab = async (url: string) => {
     try {
@@ -321,11 +358,59 @@ export default function GroupTabDetail({ group }: GroupTabDetailProps) {
           <Button variant="outline">
             Duplicate Group
           </Button>
-          <Button variant="destructive">
+          <Button 
+            variant="destructive"
+            onClick={() => setShowDeleteConfirm(true)}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
             Delete Group
           </Button>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="flex-shrink-0">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-medium text-gray-900">Delete Group</h3>
+                <p className="text-sm text-gray-600">
+                  Are you sure you want to delete "{group.name}"?
+                </p>
+              </div>
+            </div>
+            
+            <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mb-4">
+              <div className="text-sm text-amber-800">
+                <strong>Warning:</strong> This will ungroup all {group.tabs.length} tabs in Chrome. 
+                The tabs will remain open but will no longer be grouped together.
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteGroup}
+                className="flex-1"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Group
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
