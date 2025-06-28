@@ -11,11 +11,6 @@ interface TabData {
   id: number | undefined
   title: string | undefined
   url: string | undefined
-  favIconUrl: string | undefined
-  active: boolean | undefined
-  pinned: boolean | undefined
-  audible: boolean | undefined
-  discarded: boolean | undefined
 }
 
 interface AnalysisResult {
@@ -48,11 +43,6 @@ export class AIProcessor {
       id: tab.id,
       title: tab.title,
       url: tab.url,
-      favIconUrl: tab.favIconUrl,
-      active: tab.active,
-      pinned: tab.pinned,
-      audible: tab.audible,
-      discarded: tab.discarded,
     }))
   }
 
@@ -60,6 +50,9 @@ export class AIProcessor {
    * Send tabs to Coze API for AI analysis and categorization
    */
   static async analyzeTabsWithAI(tabsData: TabData[]): Promise<AnalysisResult[]> {
+    console.log('🚀 Sending tabs to AI for analysis:', tabsData.length, 'tabs')
+    console.log('📤 Tab data sample:', tabsData.slice(0, 2))
+
     const response = await fetch(this.COZE_API_URL, {
       method: "POST",
       headers: {
@@ -79,10 +72,22 @@ export class AIProcessor {
     }
 
     const responseData = await response.json()
-    const llmOutput = JSON.parse(responseData.data).output
-    const results = JSON.parse(llmOutput)
+    console.log('📥 Raw API response:', responseData)
     
-    return results
+    const llmOutput = JSON.parse(responseData.data).output
+    console.log('🧠 LLM output:', llmOutput)
+    
+    const results = JSON.parse(llmOutput)
+    console.log('✅ Parsed results:', results)
+    
+    // Fix empty IDs by mapping results back to original tabs
+    const validResults = results.map((result: any, index: number) => ({
+      id: tabsData[index]?.id?.toString() || index.toString(),
+      category: result.category
+    })).filter((result: any) => result.id && result.category)
+    
+    console.log('🔧 Fixed results with proper IDs:', validResults)
+    return validResults
   }
 
   /**
@@ -92,6 +97,9 @@ export class AIProcessor {
     results: AnalysisResult[], 
     originalTabs: chrome.tabs.Tab[]
   ): Promise<TabGroup[]> {
+    console.log('🔨 Creating Chrome tab groups from results:', results)
+    console.log('📋 Original tabs count:', originalTabs.length)
+
     // Group results by category manually
     const groupsMap = new Map<string, AnalysisResult[]>()
     results.forEach((result) => {
@@ -102,30 +110,49 @@ export class AIProcessor {
       groupsMap.get(category)!.push(result)
     })
     
+    console.log('📊 Groups map:', Array.from(groupsMap.entries()))
+    
     const createdGroups = await Promise.all(
-      Array.from(groupsMap.entries()).map(async ([title, tabs]) => {
-        const tabIds = tabs.map(t => +t.id).filter(Boolean)
+      Array.from(groupsMap.entries()).map(async ([title, tabResults]) => {
+        const tabIds = tabResults
+          .map(t => parseInt(t.id))
+          .filter(id => !isNaN(id) && id > 0)
+        
+        console.log(`🏷️  Creating group "${title}" with tab IDs:`, tabIds)
+        
         if (tabIds.length > 0) {
-          const groupId = await chrome.tabs.group({ tabIds })
-          await chrome.tabGroups.update(groupId, { title })
-          
-          // Create TabGroup object for app state
-          const groupTabs = originalTabs.filter(tab => tabIds.includes(tab.id!))
-          return {
-            id: `native-${groupId}`,
-            name: title,
-            tabs: groupTabs,
-            category: title,
-            createdAt: new Date(),
-            lastUpdated: new Date(),
-            nativeGroupId: groupId
+          try {
+            const groupId = await chrome.tabs.group({ tabIds })
+            await chrome.tabGroups.update(groupId, { title })
+            
+            // Create TabGroup object for app state
+            const groupTabs = originalTabs.filter(tab => tab.id && tabIds.includes(tab.id))
+            
+            console.log(`✅ Created group "${title}" with ${groupTabs.length} tabs`)
+            
+            return {
+              id: `native-${groupId}`,
+              name: title,
+              tabs: groupTabs,
+              category: title,
+              createdAt: new Date(),
+              lastUpdated: new Date(),
+              nativeGroupId: groupId
+            }
+          } catch (error) {
+            console.error(`❌ Failed to create group "${title}":`, error)
+            return null
           }
         }
+        console.log(`⚠️  Skipping group "${title}" - no valid tab IDs`)
         return null
       })
     )
 
-    return createdGroups.filter(Boolean) as TabGroup[]
+    const validGroups = createdGroups.filter(Boolean) as TabGroup[]
+    console.log('🎉 Successfully created groups:', validGroups.map(g => ({ name: g.name, tabCount: g.tabs.length })))
+    
+    return validGroups
   }
 
   /**
