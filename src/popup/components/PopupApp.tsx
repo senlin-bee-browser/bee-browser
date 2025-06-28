@@ -10,7 +10,7 @@ export default function PopupApp() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const handleOpenWorkspace = () => {
-    chrome.tabs.create({ url: chrome.runtime.getURL('workspace.html') })
+    chrome.tabs.create({ url: chrome.runtime.getURL('src/workspace/workspace.html') })
     window.close()
   }
 

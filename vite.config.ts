@@ -1,9 +1,19 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import { copyFileSync } from 'fs'
 
 export default defineConfig({
-  plugins: [react()],
+  base: './',
+  plugins: [
+    react(),
+    {
+      name: 'copy-manifest',
+      writeBundle() {
+        copyFileSync('manifest.json', 'dist/manifest.json')
+      }
+    }
+  ],
   build: {
     rollupOptions: {
       input: {
@@ -29,7 +39,12 @@ export default defineConfig({
           return '[name].js'
         },
         chunkFileNames: 'chunks/[name].[hash].js',
-        assetFileNames: 'assets/[name].[hash].[ext]'
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name?.endsWith('.html')) {
+            return '[name].[ext]'
+          }
+          return 'assets/[name].[hash].[ext]'
+        }
       }
     },
     outDir: 'dist',
