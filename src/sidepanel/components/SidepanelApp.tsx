@@ -45,10 +45,10 @@ function GroupCard({ group, onViewGroup }: GroupCardProps) {
         {group.tabs.slice(0, 3).map((tab, index) => (
           <div key={index} className="flex items-center space-x-2 text-xs">
             <img 
-              src={tab.favIconUrl } 
+              src={tab.favIconUrl || '/icons/icon-16.png'} 
               alt="" 
               className="w-4 h-4"
-              onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
+              onError={(e) => { e.currentTarget.src = '/icons/icon-16.png' }}
             />
             <span className="truncate">{tab.title}</span>
           </div>
@@ -294,29 +294,43 @@ export default function SidepanelApp() {
     try {
       dispatch({ type: 'SET_LOADING', payload: true })
       
-      const [currentTab] = await chrome.tabs.query({ active: true, currentWindow: true })
-      
-      if (!currentTab?.id) {
-        throw new Error('没有找到活动标签页')
-      }
-      
-      console.log('🔍 分析当前标签页:', currentTab.title)
-      
-      // 简单的智能分组逻辑：如果当前标签页还不在任何组中，尝试创建一个新组
-      if (!currentTab.groupId || currentTab.groupId === -1) {
-        const groupName = `${currentTab.title?.split(' ')[0] || '新'} 分组`
-        
-        // 创建新的标签组并添加当前标签页
-        const groupId = await chrome.tabs.group({ tabIds: [currentTab.id] })
-        await chrome.tabGroups.update(groupId, {
-          title: groupName,
-          color: 'green'
+      const tabs = await chrome.tabs.query({ currentWindow: true })
+      const tabsData = tabs.map(tab => ({
+        id: tab.id,
+        title: tab.title,
+        url: tab.url,
+        favIconUrl: tab.favIconUrl,
+        active: tab.active,
+        pinned: tab.pinned,
+        audible: tab.audible,
+        discarded: tab.discarded,
+      }))
+
+      const r = await fetch("https://api.coze.cn/v1/workflow/run", {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer pat_gqb2WMNGMLRDwB85gyIhXxAxJDJZ7BM2bClu8H5imVrvvxV7oUMY8iLpdNUUMvSj",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          "workflow_id": "7520894694882525223",
+          "parameters": {
+            "input": tabsData //塞入标签页数组
+          }
         })
-        
-        console.log('✅ 为当前标签页创建了新分组:', groupName)
-      } else {
-        console.log('📋 当前标签页已在标签组中:', currentTab.groupId)
-      }
+      })
+      const llmOutput = JSON.parse((await r.json()).data).output
+      const results = JSON.parse(llmOutput)
+      console.log(results)
+
+      const groups = Object.groupBy(results, (g) => g.category)
+      console.log(groups)
+      Object.entries(groups).map(async ([title, tabs])=>{
+        const groupId = await chrome.tabs.group({ 
+          tabIds: tabs.map(t=>+t.id).filter(Boolean),
+        })
+        await chrome.tabGroups.update(groupId, {title})
+      })
       
       // 重新加载 groups 以获取可能的新分组
       await loadGroups(false)
@@ -618,10 +632,10 @@ export default function SidepanelApp() {
                 {selectedGroup.tabs.map((tab: any, index: number) => (
                   <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                     <img 
-                      src={tab.favIconUrl } 
+                      src={tab.favIconUrl || '/icons/icon-16.png'} 
                       alt="" 
                       className="w-5 h-5"
-                      onError={(e) => { e.currentTarget.src = '/assets/icons/icon-16.png' }}
+                      onError={(e) => { e.currentTarget.src = '/icons/icon-16.png' }}
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{tab.title}</p>
