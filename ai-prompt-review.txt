@@ -1,0 +1,135 @@
+# AI Prompt Review for Tab Group Analysis
+
+## Overall Assessment
+The prompt is well-structured for analyzing user browsing behavior and intent classification. However, there are several areas for improvement to make it more effective for the Chrome extension context.
+
+## Strengths
+1. **Clear Role Definition**: Well-defined expertise areas (behavior analysis, intent recognition, content understanding)
+2. **Comprehensive Intent Categories**: Good coverage of major browsing purposes
+3. **Two-tier Classification**: Logical hierarchy from general to specific intents
+4. **JSON Output Format**: Structured format suitable for programmatic processing
+5. **Concrete Examples**: Helpful examples for each category
+
+## Areas for Improvement
+
+### 1. Language Consistency
+- **Issue**: Prompt is in Chinese while examples use English
+- **Recommendation**: Use consistent language throughout (preferably English for international compatibility)
+
+### 2. Output Format Inconsistency
+- **Issue**: Two different JSON formats are shown:
+  ```json
+  // Format 1 (requested)
+  [{"id": 16282060, "category": "技术学习"}]
+  
+  // Format 2 (example)
+  [{"title": "React docs", "url": "...", "intent_level1": "...", "intent_level2": "..."}]
+  ```
+- **Recommendation**: Clarify which format is expected
+
+### 3. Category Naming Issues
+- **Issue**: Category names are in Chinese, which may not match the extension's UI language
+- **Recommendation**: Use English category names or provide bilingual support
+
+### 4. Missing Context Information
+- **Issue**: Prompt doesn't specify what data will be available (tab titles, URLs, timestamps, etc.)
+- **Recommendation**: Clearly define input data structure
+
+### 5. Edge Case Handling
+- **Issue**: No guidance for handling:
+  - Empty or very short tab titles
+  - Private/internal URLs
+  - Duplicate tabs
+  - Browser extension pages
+- **Recommendation**: Add specific handling instructions
+
+## Improved Prompt Suggestion
+
+```
+# Role
+You are a professional browsing behavior analyst specializing in user intent recognition and intelligent tab management.
+
+# Task
+Analyze user's browser tabs (including titles, URLs, and metadata) to identify browsing intent and group related tabs. Return results in JSON format for Chrome extension integration.
+
+# Input Data Structure
+You will receive an array of tab objects:
+```json
+[
+  {
+    "id": "string|number",
+    "title": "string",
+    "url": "string",
+    "favIconUrl": "string (optional)",
+    "lastAccessed": "timestamp (optional)"
+  }
+]
+```
+
+# Intent Categories
+1. **Work & Development**: Programming, project management, documentation, email
+2. **Learning & Research**: Tutorials, courses, academic research, reference materials  
+3. **Entertainment**: Videos, games, music, reading, social media browsing
+4. **Shopping & Services**: E-commerce, food delivery, travel booking, utilities
+5. **News & Information**: Current events, financial data, weather, general knowledge
+6. **Communication**: Social media interaction, messaging, forums, communities
+7. **Gaming**: Web games, game platforms, gaming news and communities
+8. **Technical Learning**: Programming languages, frameworks, development tools
+
+# Analysis Rules
+1. Group tabs with similar intent/purpose together
+2. Create 3-6 groups maximum to avoid over-fragmentation
+3. Use descriptive, specific group names that reflect actual user goals
+4. If a category has fewer than 2 tabs, classify as "Miscellaneous"
+5. Handle edge cases gracefully (empty titles, extension pages, etc.)
+
+# Output Format
+```json
+{
+  "groups": [
+    {
+      "name": "React Development Learning",
+      "category": "Technical Learning", 
+      "tabs": [16282060, 16282061]
+    },
+    {
+      "name": "Winter Shopping",
+      "category": "Shopping & Services",
+      "tabs": [16282064]
+    }
+  ]
+}
+```
+
+# Special Handling
+- Browser extension pages → "Miscellaneous"
+- Empty/generic titles → Use URL domain for context
+- Private/localhost URLs → Group by development context
+- Duplicate content → Merge into single group
+```
+
+## Key Improvements Made
+
+1. **Language Consistency**: All English for international use
+2. **Clear Input/Output**: Defined data structures
+3. **Edge Case Handling**: Specific instructions for common issues
+4. **Better Categorization**: More relevant categories for modern browsing
+5. **Flexible Output**: Structure that supports both grouping and metadata
+6. **Chrome Extension Context**: Tailored for browser extension use case
+
+## Additional Recommendations
+
+### For Implementation:
+1. **Fallback Handling**: Implement client-side fallbacks if AI analysis fails
+2. **User Feedback**: Allow users to rename/regroup AI suggestions
+3. **Learning**: Store user corrections to improve future analysis
+4. **Privacy**: Ensure sensitive URLs are handled appropriately
+5. **Performance**: Consider caching results for similar tab patterns
+
+### For Testing:
+1. Test with various browsing patterns (work, personal, mixed)
+2. Validate with international websites and non-English content
+3. Check performance with large numbers of tabs (50+ tabs)
+4. Test edge cases (extension pages, local files, etc.)
+
+This improved prompt should provide more consistent and useful results for your Chrome extension's tab grouping functionality.
