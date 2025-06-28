@@ -1,18 +1,21 @@
 import { TabMonitor } from './tab-monitor';
 import { StorageManager } from '@utils/storage-manager';
 import { TabGrouper } from '@utils/tab-grouper';
+import { TabGroupIntegration } from '@utils/tab-group-integration';
 import type { MessageType, Settings } from '../types/app-types';
 
 class ServiceWorker {
   private tabMonitor: TabMonitor;
   private storageManager: StorageManager;
   private tabGrouper: TabGrouper;
+  private tabGroupIntegration: TabGroupIntegration;
   private isInitialized = false;
 
   constructor() {
     this.tabMonitor = new TabMonitor();
     this.storageManager = new StorageManager();
     this.tabGrouper = new TabGrouper();
+    this.tabGroupIntegration = new TabGroupIntegration();
     this.initialize();
   }
 
@@ -81,7 +84,7 @@ class ServiceWorker {
     try {
       switch (message.type) {
         case 'GET_GROUPS':
-          const groups = await this.storageManager.getTabGroups();
+          const groups = await this.tabGroupIntegration.getAllIntegratedGroups();
           sendResponse({ groups });
           break;
           
@@ -101,6 +104,26 @@ class ServiceWorker {
         case 'SYNC_DATA':
           await this.syncAllData();
           sendResponse({ success: true });
+          break;
+          
+        case 'CREATE_NATIVE_GROUP':
+          if (message.payload?.tabs) {
+            const result = await this.tabGroupIntegration.createIntelligentGroup(
+              message.payload.tabs,
+              message.payload.options
+            );
+            sendResponse({ result });
+          }
+          break;
+          
+        case 'SYNC_TO_NATIVE':
+          await this.tabGroupIntegration.syncAllCustomGroupsToNative();
+          sendResponse({ success: true });
+          break;
+          
+        case 'GET_ANALYTICS':
+          const analytics = await this.tabGroupIntegration.getIntegratedAnalytics();
+          sendResponse({ analytics });
           break;
           
         default:

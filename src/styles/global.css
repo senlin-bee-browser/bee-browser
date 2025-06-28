@@ -6,7 +6,7 @@
   * {
     @apply border-gray-200;
   }
-  
+
   body {
     @apply bg-white text-gray-900;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -17,8 +17,30 @@
   .popup-container {
     @apply w-full h-full p-4 bg-white;
   }
-  
+
   .extension-container {
     @apply min-h-screen bg-gray-50;
+  }
+
+  /* 文本截断样式 */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
   }
 }

@@ -22,6 +22,7 @@ export default defineConfig({
         options: resolve(__dirname, 'src/options/options.html'),
         sidepanel: resolve(__dirname, 'src/sidepanel/sidepanel.html'),
         workspace: resolve(__dirname, 'src/workspace/workspace.html'),
+        newtab: resolve(__dirname, 'src/newtab/newtab.html'),
         // Background scripts
         'service-worker': resolve(__dirname, 'src/background/service-worker.ts'),
         // Content scripts

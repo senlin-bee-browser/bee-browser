@@ -5,15 +5,14 @@
   "description": "AI-powered Chrome extension for intelligent tab and history management",
   "permissions": [
     "tabs",
+    "tabGroups",
     "history",
     "storage",
     "activeTab",
-    "sidePanel"
+    "sidePanel",
+    "scripting"
   ],
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
-  ],
+  "host_permissions": ["http://*/*", "https://*/*"],
   "background": {
     "service_worker": "background/service-worker.js"
   },
@@ -32,9 +31,16 @@
     "default_path": "src/sidepanel/sidepanel.html"
   },
   "options_page": "src/options/options.html",
+  "chrome_url_overrides": {
+    "newtab": "src/newtab/newtab.html"
+  },
   "web_accessible_resources": [
     {
-      "resources": ["content/*", "src/workspace/workspace.html"],
+      "resources": [
+        "content/*",
+        "src/workspace/workspace.html",
+        "src/newtab/newtab.html"
+      ],
       "matches": ["http://*/*", "https://*/*"]
     }
   ]
