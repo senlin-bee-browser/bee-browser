@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { X, Search, ExternalLink, Volume2, VolumeX, Pin } from 'lucide-react'
+import { X, Search, ExternalLink, Volume2, VolumeX, Pin, ChevronLeft, ChevronRight, MessageSquare } from 'lucide-react'
 import AIChatBox from './AIChatBox'
 import { default as  MindMap } from './Mindmap'
 interface TabGroupWithTabs extends chrome.tabGroups.TabGroup {
@@ -12,11 +12,11 @@ interface TabCardsProps {
   onTabClose: (tabId: number) => void
   group: TabGroupWithTabs | null | undefined
 }
-
-
+import "./TabCards.css"
 
 export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClose, group }: TabCardsProps) {
   const [filter, setFilter] = useState<'all' | 'active' | 'audible' | 'pinned'>('all')
+  const [aiPanelCollapsed, setAiPanelCollapsed] = useState(false)
 
   const filteredTabs = useMemo(() => {
     let filtered = tabs
@@ -67,6 +67,10 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
   const handleTabsAnalyzed = () => {
     // 当 AI 分析完成后，可以在这里处理刷新标签页列表等逻辑
     console.log('标签页分析完成，刷新列表')
+  }
+
+  const toggleAiPanel = () => {
+    setAiPanelCollapsed(prev => !prev)
   }
 
   return (
@@ -222,12 +226,52 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
         </div>
       </div>
 
-      {/* 右侧 AI 对话 */}
-      <div className="flex-1 w-180 min-w-0">
-        <AIChatBox
-          currentTabs={tabs}
-          onAnalyzeTabs={handleTabsAnalyzed}
-        />
+      {/* 右侧 AI 对话面板 */}
+      <div className={`ai-chat-panel transition-all duration-300 ${
+        aiPanelCollapsed ? 'w-12 collapsed' : 'flex-1 w-180 min-w-0 uncollapsed'
+      }`}>
+        {aiPanelCollapsed ? (
+          // 折叠状态：显示垂直窄条
+          <div className="h-full bg-white bg-opacity-10 backdrop-blur-sm border border-white border-opacity-20 rounded-lg flex flex-col items-center justify-center space-y-4">
+            <button
+              onClick={toggleAiPanel}
+              className="p-2 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition-colors"
+              title="展开 AI 助手"
+            >
+              <ChevronLeft className="w-5 h-5 text-black" />
+            </button>
+            
+            <div className="flex flex-col items-center space-y-2">
+              <MessageSquare className="w-5 h-5 text-black opacity-60" />
+              <div className="text-xs text-black opacity-60 transform -rotate-90 whitespace-nowrap">
+                AI 助手
+              </div>
+            </div>
+          </div>
+        ) : (
+          // 展开状态：显示完整面板
+          <div className="h-full flex flex-col">
+            <div className="flex items-center justify-between mb-2 px-2">
+              <div className="flex items-center space-x-2">
+                <MessageSquare className="w-4 h-4 text-black opacity-60" />
+                <span className="text-sm font-medium text-black opacity-80">AI 助手</span>
+              </div>
+              <button
+                onClick={toggleAiPanel}
+                className="p-1 rounded hover:bg-white hover:bg-opacity-20 transition-colors"
+                title="收起 AI 助手"
+              >
+                <ChevronRight className="w-4 h-4 text-black opacity-60" />
+              </button>
+            </div>
+            <div className="flex-1">
+              <AIChatBox
+                currentTabs={tabs}
+                onAnalyzeTabs={handleTabsAnalyzed}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

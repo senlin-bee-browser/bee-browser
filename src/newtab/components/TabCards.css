@@ -1,0 +1,12 @@
+.ai-chat-panel {
+  flex: 1 1 180px;
+}
+
+.ai-chat-panel.collapsed {
+  flex: 0 0 12px;
+}
+
+.ai-chat-panel.uncollapsed {
+  flex: 1 1 180px;
+  width: 180px;
+}
