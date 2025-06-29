@@ -364,6 +364,32 @@ export default function SidepanelApp() {
     }
   }
 
+  const handleCloseGroup = async (group: any) => {
+    try {
+      console.log('🔄 开始关闭标签组:', group.name)
+      
+      // 获取分组中所有标签页的ID
+      const tabIds = group.tabs.map((tab: any) => tab.id).filter((id: any) => id != null)
+      
+      if (tabIds.length > 0) {
+        // 关闭分组中的所有标签页
+        await chrome.tabs.remove(tabIds)
+        console.log('✅ 已关闭标签组中的所有标签页:', tabIds)
+      }
+      
+      // 关闭模态框
+      setSelectedGroup(null)
+      
+      // 重新加载groups以更新UI
+      await loadGroups(false)
+      
+      console.log('✅ 标签组关闭完成')
+    } catch (error) {
+      console.error('❌ 关闭标签组失败:', error)
+      dispatch({ type: 'SET_ERROR', payload: '关闭标签组失败: ' + (error instanceof Error ? error.message : '未知错误') })
+    }
+  }
+
   const filteredGroups = state.tabGroups.filter(group => {
     if (searchQuery && !group.name.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false
@@ -564,7 +590,7 @@ export default function SidepanelApp() {
             )}
             
             {/* 调试信息 */}
-            <DebugInfo debugInfo={debugInfo} />
+            {/* <DebugInfo debugInfo={debugInfo} /> */}
           </div>
         ) : (
           <div className="h-full overflow-y-auto p-4">
@@ -591,10 +617,14 @@ export default function SidepanelApp() {
                 <div className="flex space-x-2">
                   <Button onClick={() => handleOpenAllTabs(selectedGroup)}>
                     <ExternalLink className="w-4 h-4 mr-2" />
-                    Open All
+                    Open
+                  </Button>
+                  <Button variant="destructive" onClick={() => handleCloseGroup(selectedGroup)}>
+                    <XCircle className="w-4 h-4 mr-2" />
+                    Close
                   </Button>
                   <Button variant="ghost" onClick={() => setSelectedGroup(null)}>
-                    Close
+                    Cancel
                   </Button>
                 </div>
               </div>

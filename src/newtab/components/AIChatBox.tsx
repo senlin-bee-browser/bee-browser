@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { Bubble, Sender } from "@ant-design/x";
 import { Button, Card, message } from "antd";
-import { UserOutlined, RobotOutlined, WifiOutlined } from "@ant-design/icons";
+import { UserOutlined, RobotOutlined, WifiOutlined, UpOutlined, DownOutlined } from "@ant-design/icons";
 import { AIProcessor } from "@utils/ai-processor";
 import { CozeAPI } from "@utils/coze-api";
 import "./AIChatBox.css";
@@ -34,6 +34,12 @@ export default function AIChatBox({
   ]);
   const [loading, setLoading] = useState(false);
   const [apiConnected, setApiConnected] = useState<boolean | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
+
+  // 切换折叠状态
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed(prev => !prev);
+  }, []);
 
   // 检查 API 连接状态
   const checkAPIConnection = useCallback(async () => {
@@ -82,7 +88,7 @@ export default function AIChatBox({
     ) => {
       setMessages((prev) =>
         prev.map((msg) => {
-          if (msg.id === messageId) {
+          if (msg.id === messageId && msg.status !== "complete") {
             const originalContent = msg.content;
             const newContent = originalContent + content;
 
@@ -368,7 +374,17 @@ export default function AIChatBox({
     <Card
       title={
         <div className="flex items-center justify-between">
-          <span>AI 助手</span>
+          <div className="flex items-center space-x-2">
+            <span>AI 助手</span>
+            <Button
+              type="text"
+              size="small"
+              icon={collapsed ? <DownOutlined /> : <UpOutlined />}
+              onClick={toggleCollapsed}
+              title={collapsed ? "展开聊天面板" : "折叠聊天面板"}
+              className="text-gray-500 hover:text-gray-700"
+            />
+          </div>
           <div className="flex items-center space-x-2">
             <WifiOutlined
               className={`text-sm ${
@@ -399,49 +415,57 @@ export default function AIChatBox({
           </div>
         </div>
       }
-      className="chat-container flex flex-col"
+      className={`chat-container transition-all duration-300 ${collapsed ? 'h-auto' : 'flex flex-col'}`}
     >
-      <div className="flex-1 flex flex-col min-h-0">
-        {/* 聊天区域 */}
-        <div className="flex-1 overflow-y-auto mb-4">
-          <Bubble.List
-            items={bubbleItems}
-            style={{
-              height: "100%",
-              maxWidth: "100%",
-            }}
-            className="w-full"
-          />
-        </div>
+      {!collapsed && (
+        <div className="flex-1 flex flex-col min-h-0">
+          {/* 聊天区域 */}
+          <div className="flex-1 overflow-y-auto mb-4">
+            <Bubble.List
+              items={bubbleItems}
+              style={{
+                height: "100%",
+                maxWidth: "100%",
+              }}
+              className="w-full"
+            />
+          </div>
 
-        {/* 快捷操作按钮 */}
-        <div className="px-4 py-2 border-t">
-          <Button
-            type="primary"
-            ghost
-            size="small"
-            onClick={handleAnalyzeTabs}
-            disabled={loading || currentTabs.length === 0}
-            className="mb-2 w-full"
-            loading={loading}
-          >
-            智能分析标签页 ({currentTabs.length})
-          </Button>
-        </div>
+          {/* 快捷操作按钮 */}
+          <div className="px-4 py-2 border-t">
+            <Button
+              type="primary"
+              ghost
+              size="small"
+              onClick={handleAnalyzeTabs}
+              disabled={loading || currentTabs.length === 0}
+              className="mb-2 w-full"
+              loading={loading}
+            >
+              智能分析标签页 ({currentTabs.length})
+            </Button>
+          </div>
 
-        {/* 输入区域 */}
-        <div className="p-4 border-t">
-          <Sender
-            placeholder={
-              apiConnected === false
-                ? "AI 服务不可用，使用本地模式..."
-                : "输入您的问题..."
-            }
-            onSubmit={handleUserInput}
-            loading={loading}
-          />
+          {/* 输入区域 */}
+          <div className="p-4 border-t">
+            <Sender
+              placeholder={
+                apiConnected === false
+                  ? "AI 服务不可用，使用本地模式..."
+                  : "输入您的问题..."
+              }
+              onSubmit={handleUserInput}
+              loading={loading}
+            />
+          </div>
         </div>
-      </div>
+      )}
+      
+      {collapsed && (
+        <div className="p-4 text-center text-gray-500 text-sm">
+          点击上方按钮展开 AI 助手面板
+        </div>
+      )}
     </Card>
   );
 }
