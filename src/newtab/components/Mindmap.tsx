@@ -375,8 +375,8 @@ function MindmapInternal({ group }: MindmapProps) {
     layout: {
       type: 'mindmap',
       direction: 'H', // Horizontal layout
-      getHGap: () => 100,
-      getVGap: () => 50,
+      getHGap: () => 20,
+      getVGap: () => 5,
       getSide: () => 'right', // All children nodes on the right side
     },
   
