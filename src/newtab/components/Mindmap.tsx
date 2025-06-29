@@ -91,6 +91,10 @@ function MindmapInternal({ group }: MindmapProps) {
   const debounceTimerRef = useRef<NodeJS.Timeout>()
   const lastAnalyzedHashRef = useRef<string>('')
 
+  const getInvisibleCharacter = () => {
+    return String.fromCodePoint(0xE0100 + +(Math.random() * 256).toFixed(0)) 
+  }
+
   // 优化的AI分析效果，带缓存检查
   useEffect(() => {
     // 检查是否需要重新分析
@@ -186,7 +190,7 @@ function MindmapInternal({ group }: MindmapProps) {
           )
           
           const tabChildren = subcategoryTabs.map((tab: chrome.tabs.Tab) => ({
-            id: tab.title || 'Untitled',
+            id: (tab.title || 'Untitled') + ' ' + getInvisibleCharacter(),
             type: 'rect',
             size: [160, 28],
             style: {
@@ -301,7 +305,7 @@ function MindmapInternal({ group }: MindmapProps) {
         )
         
         const tabChildren = subcategoryTabs.map((tab: chrome.tabs.Tab) => ({
-          id: tab.title || 'Untitled',
+          id: (tab.title || 'Untitled') + ' ' + getInvisibleCharacter(),
           type: 'rect',
           size: [160, 28],
           style: {
