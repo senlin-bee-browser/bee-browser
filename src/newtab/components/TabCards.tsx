@@ -56,9 +56,11 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
   const formatUrl = (url: string) => {
     try {
       const urlObj = new URL(url)
-      return urlObj.hostname + urlObj.pathname
+      const formatted = urlObj.hostname + urlObj.pathname
+      return formatted.length > 30 ? formatted.substring(0, 30) + '...' : formatted
     } catch {
-      return url
+      const fallback = url
+      return fallback.length > 30 ? fallback.substring(0, 30) + '...' : fallback
     }
   }
 
