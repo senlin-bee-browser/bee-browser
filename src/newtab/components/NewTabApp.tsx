@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Search, Home, Settings, Folder, RefreshCw, Zap, ChevronRight, Eye } from 'lucide-react'
 import { useTabs, useTabGroups } from '@shared/hooks'
 import TabCards from './TabCards'
 import SearchBox from './SearchBox'
+// import Analytics from './Analytics'
+// import { default as  MindMap } from './Mindmap'
 
 export default function NewTabApp() {
   const { tabs } = useTabs({ enableEnhancement: false })
@@ -16,13 +18,6 @@ export default function NewTabApp() {
     }, 1000)
     return () => clearInterval(timer)
   }, [])
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('zh-CN', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
   
   const handleSearch = (query: string) => {
     if (query.trim()) {
@@ -40,21 +35,6 @@ export default function NewTabApp() {
     setSelectedGroupId(groupId)
   }
 
-  const getGroupColorClass = (color: string) => {
-    const colorMap: Record<string, string> = {
-      'grey': 'bg-gray-500',
-      'blue': 'bg-blue-500',
-      'red': 'bg-red-500',
-      'yellow': 'bg-yellow-500',
-      'green': 'bg-green-500',
-      'pink': 'bg-pink-500',
-      'purple': 'bg-purple-500',
-      'cyan': 'bg-cyan-500',
-      'orange': 'bg-orange-500'
-    }
-    return colorMap[color] || 'bg-blue-500'
-  }
-
   const getGroupIcon = (color: string) => {
     const iconMap: Record<string, string> = {
       'blue': '💼',
@@ -70,7 +50,10 @@ export default function NewTabApp() {
     return iconMap[color] || '📁'
   }
 
-  const selectedGroup = selectedGroupId === 'home' ? null : tabGroups.find(group => group.id === selectedGroupId)
+  const selectedGroup = useMemo(() => {
+    return selectedGroupId === 'home' ? null : tabGroups.find(group => group.id === selectedGroupId)
+  }, [selectedGroupId, tabGroups])
+  
   const displayTabs = selectedGroup ? selectedGroup.tabs : tabs.filter(tab => !tab.groupId || tab.groupId === -1)
 
   return (
@@ -291,7 +274,10 @@ export default function NewTabApp() {
                 </div>
               ) : (
                 <div className="h-full overflow-y-auto p-6">
+                  {/* <MindMap group={selectedGroup} /> */}
+                  
                   <TabCards 
+                    group={selectedGroup}
                     tabs={displayTabs}
                     // tabs={tabs}
                     searchQuery=""

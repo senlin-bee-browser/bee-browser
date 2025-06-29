@@ -401,32 +401,9 @@ export default function AIChatBox({
       }
       className="chat-container flex flex-col"
     >
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-          .ant-bubble-content {
-            white-space: pre-wrap !important;
-            word-wrap: break-word !important;
-            overflow-wrap: break-word !important;
-            word-break: break-word !important;
-            max-width: 100% !important;
-            line-height: 1.6 !important;
-          }
-          .ant-bubble {
-            max-width: 80% !important;
-          }
-          .ant-bubble[data-placement="start"] {
-            max-width: 85% !important;
-          }
-          .ant-bubble[data-placement="end"] {
-            max-width: 75% !important;
-          }
-        `,
-        }}
-      />
       <div className="flex-1 flex flex-col min-h-0">
         {/* 聊天区域 */}
-        <div className="flex-1 p-4 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto mb-4">
           <Bubble.List
             items={bubbleItems}
             style={{

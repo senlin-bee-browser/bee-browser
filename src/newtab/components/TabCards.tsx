@@ -1,15 +1,21 @@
 import { useState, useMemo } from 'react'
 import { X, Search, ExternalLink, Volume2, VolumeX, Pin } from 'lucide-react'
 import AIChatBox from './AIChatBox'
-
+import { default as  MindMap } from './Mindmap'
+interface TabGroupWithTabs extends chrome.tabGroups.TabGroup {
+  tabs: chrome.tabs.Tab[]
+}
 interface TabCardsProps {
   tabs: chrome.tabs.Tab[]
   searchQuery?: string
   onTabClick: (tab: chrome.tabs.Tab) => void
   onTabClose: (tabId: number) => void
+  group: TabGroupWithTabs | null | undefined
 }
 
-export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClose }: TabCardsProps) {
+
+
+export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClose, group }: TabCardsProps) {
   const [filter, setFilter] = useState<'all' | 'active' | 'audible' | 'pinned'>('all')
 
   const filteredTabs = useMemo(() => {
@@ -65,8 +71,10 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
     <div className="h-full flex">
       {/* 左侧标签页列表 */}
       <div className="flex-1 flex flex-col mr-4">
+        <MindMap group={group} />
+        
         {/* 标题和过滤器 */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 mt-4">
           <h3 className="text-lg font-semibold text-black">
             标签页列表 ({filteredTabs.length})
           </h3>
