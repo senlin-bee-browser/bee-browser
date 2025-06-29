@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Search, Settings, BarChart3, FolderOpen, RefreshCw, Download, RotateCcw, ExternalLink, X } from 'lucide-react'
+import { Search, Settings, BarChart3, PanelRight, FolderOpen, RefreshCw, Download, RotateCcw, ExternalLink, X } from 'lucide-react'
 import { Button, Loading } from '@shared/components'
 import { useApp } from '@shared/contexts/AppContext'
 import { useTabs } from '@shared/hooks/useTabs'
@@ -365,7 +365,7 @@ export default function PopupApp() {
             onClick={handleOpenSidepanel}
             className="w-full justify-start"
           >
-            <BarChart3 className="w-4 h-4 mr-2" />
+            <PanelRight className="w-4 h-4 mr-2" />
             Open Sidepanel
           </Button>
           
