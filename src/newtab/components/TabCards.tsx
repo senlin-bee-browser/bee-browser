@@ -213,7 +213,7 @@ export default function TabCards({ tabs, searchQuery = '', onTabClick, onTabClos
       </div>
 
       {/* 右侧 AI 对话 */}
-      <div className="w-96 min-w-0">
+      <div className="w-180 min-w-0">
         <AIChatBox
           currentTabs={tabs}
           onAnalyzeTabs={handleTabsAnalyzed}
