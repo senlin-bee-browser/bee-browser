@@ -5,6 +5,7 @@ import TabCards from './TabCards'
 import SearchBox from './SearchBox'
 // import Analytics from './Analytics'
 // import { default as  MindMap } from './Mindmap'
+import { navigateToTab, closeTab, showNavigationResult } from '@utils/tab-navigation'
 
 export default function NewTabApp() {
   const { tabs } = useTabs({ enableEnhancement: false })
@@ -205,7 +206,16 @@ export default function NewTabApp() {
 
                       <div className="space-y-2">
                         {group.tabs?.slice(0, 3).map((tab, index) => (
-                          <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50">
+                          <div 
+                            key={index} 
+                            className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                            onClick={async (e) => {
+                              e.stopPropagation() // 防止触发父级的分组点击
+                              console.log('🔄 首页标签页点击，跳转到:', tab.title)
+                              const result = await navigateToTab(tab)
+                              showNavigationResult(result, `已从首页跳转到「${tab.title}」`)
+                            }}
+                          >
                             <div className="w-4 h-4 rounded-sm bg-gray-200 flex items-center justify-center overflow-hidden">
                               {tab.favIconUrl ? (
                                 <img src={tab.favIconUrl} alt="" className="w-full h-full" />
@@ -281,13 +291,25 @@ export default function NewTabApp() {
                     tabs={displayTabs}
                     // tabs={tabs}
                     searchQuery=""
-                    onTabClick={(tab: chrome.tabs.Tab) => {
-                      if (tab.id) {
-                        chrome.tabs.update(tab.id, { active: true })
+                    onTabClick={async (tab: chrome.tabs.Tab) => {
+                      console.log('🔄 尝试跳转到标签页:', tab.title)
+                      const result = await navigateToTab(tab)
+                      showNavigationResult(result, `已跳转到「${tab.title}」`)
+                      
+                      // 如果跳转成功，可以在这里添加额外的处理逻辑
+                      if (result.success) {
+                        // 可以记录访问历史、更新统计等
                       }
                     }}
-                    onTabClose={(tabId: number) => {
-                      chrome.tabs.remove(tabId)
+                    onTabClose={async (tabId: number) => {
+                      console.log('🔄 尝试关闭标签页 ID:', tabId)
+                      const result = await closeTab(tabId)
+                      showNavigationResult(result, '标签页已关闭')
+                      
+                      // 如果关闭成功，刷新标签组列表
+                      if (result.success) {
+                        refreshTabGroups()
+                      }
                     }}
                   />
                 </div>

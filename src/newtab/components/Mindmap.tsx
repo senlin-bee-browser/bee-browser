@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { AIProcessor } from '@utils/ai-processor'
 import { IntentAnalysisResult, IntentSubcategory } from '@shared/contexts/AppContext'
 import { Spin, Alert } from 'antd'
+import { navigateToTab, showNavigationResult } from '@utils/tab-navigation'
 
 interface TabGroupWithTabs extends chrome.tabGroups.TabGroup {
   tabs: chrome.tabs.Tab[]
@@ -368,8 +369,8 @@ function MindmapInternal({ group }: MindmapProps) {
   const mindMapData = useMemo(() => createMindMapData(), [createMindMapData])
 
   const config = {
-    autoFit: 'center',
-    type: "boxed",
+    autoFit: 'center' as const,
+    type: "boxed" as const,
     data: mindMapData,
     layout: {
       type: 'mindmap',
@@ -396,15 +397,15 @@ function MindmapInternal({ group }: MindmapProps) {
         },
       },
     },
-    onNodeClick: (evt: any) => {
+    onNodeClick: async (evt: any) => {
       const { item } = evt
       const model = item.getModel()
       
       // Handle tab clicks
       if (model.data?.tab?.id) {
-        // 可以在这里添加标签页点击处理逻辑
-        console.log('点击标签页:', model.data.tab)
-        // chrome.tabs.update(model.data.tab.id, { active: true })
+        console.log('🔄 MindMap节点点击，跳转到标签页:', model.data.tab.title)
+        const result = await navigateToTab(model.data.tab)
+        showNavigationResult(result, `已从思维导图跳转到「${model.data.tab.title}」`)
       }
     },
   }
