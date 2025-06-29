@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Search, Home, Settings, Folder, RefreshCw, Zap, ChevronRight, Eye } from 'lucide-react'
 import { useTabs, useTabGroups } from '@shared/hooks'
-import GroupsList from './GroupsList'
-import BrowsingTopology from './BrowsingTopology'
 import TabCards from './TabCards'
 import SearchBox from './SearchBox'
 
@@ -11,7 +9,6 @@ export default function NewTabApp() {
   const { tabGroups, loading: groupsLoading, error: groupsError, refreshTabGroups } = useTabGroups()
   const [selectedGroupId, setSelectedGroupId] = useState<number | 'home'>('home')
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [activeView, setActiveView] = useState<'topology' | 'cards'>('topology')
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -26,23 +23,7 @@ export default function NewTabApp() {
       minute: '2-digit'
     })
   }
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('zh-CN', {
-      month: 'long',
-      day: 'numeric',
-      weekday: 'long'
-    })
-  }
-
-  const getGreeting = () => {
-    const hour = currentTime.getHours()
-    if (hour < 6) return '夜深了'
-    if (hour < 12) return '早上好'
-    if (hour < 18) return '下午好'
-    return '晚上好'
-  }
-
+  
   const handleSearch = (query: string) => {
     if (query.trim()) {
       if (query.includes('.') && !query.includes(' ')) {
@@ -141,7 +122,7 @@ export default function NewTabApp() {
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-400 to-yellow-500 flex items-center justify-center text-white text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br flex items-center justify-center text-white text-sm">
                       {getGroupIcon(group.color)}
                     </div>
                     <span className="font-medium text-gray-900 text-sm">
@@ -182,37 +163,38 @@ export default function NewTabApp() {
             <div className="min-h-full flex flex-col items-center p-12" style={{ minHeight: 'calc(100vh - 2rem)' }}>
               <div className="flex-1 flex flex-col items-center justify-center w-full max-w-6xl">
               {/* 品牌区域 */}
-              <div className="text-center mb-12">
+              <div className="text-center mb-4">
                 <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-yellow-500 rounded-3xl flex items-center justify-center mb-6 mx-auto shadow-lg">
-                  <Zap className="w-10 h-10 text-white" />
+                  {/* <Zap className="w-10 h-10 text-white" /> */}
+                  <img src={chrome.runtime.getURL('icons/icon-128.png')} alt="logo" className="w-10 h-10" />
                 </div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-3">蜜蜂浏览器</h1>
-                <p className="text-lg text-gray-600 mb-2">您的个人网页收藏中心</p>
-                <p className="text-gray-500">发现、收藏、管理您喜爱的网站</p>
+                <h1 className="text-4xl font-bold text-gray-900 mb-3" style={{ fontFamily: 'fantasy' }}>Bee Browser</h1>
+                {/* <p className="text-lg text-gray-600 mb-2">您的个人网页收藏中心</p> */}
+                {/* <p className="text-gray-500">发现、收藏、管理您喜爱的网站</p> */}
               </div>
 
               {/* 搜索框 */}
-              <div className="w-full max-w-2xl mb-4">
+              <div className="w-full max-w-2xl mb-8">
                 <SearchBox 
                   onSearch={handleSearch}
-                  placeholder="搜索网页或输入网址..."
+                  placeholder="搜索网页或输入网址，一键直达..."
                 />
               </div>
 
               {/* 搜索建议 */}
-              <div className="text-sm text-gray-500 mb-12">
+              {/* <div className="text-sm text-gray-500 mb-12">
                 💡 试试搜索 "Github"、"设计" 或直接输入网址
-              </div>
+              </div> */}
 
               {/* 分类概览 */}
               <div className="w-full">
-                <div className="flex items-center space-x-2 mb-6">
+                {/* <div className="flex items-center space-x-2 mb-6">
                   <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
                     <span className="text-white text-sm">⭐</span>
                   </div>
                   <h2 className="text-xl font-semibold text-gray-900">分类概览</h2>
                   <span className="text-gray-500">{tabGroups.length} 个分类</span>
-                </div>
+                </div> */}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {tabGroups.slice(0, 6).map((group) => (
@@ -223,7 +205,7 @@ export default function NewTabApp() {
                     >
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-yellow-500 rounded-xl flex items-center justify-center text-white">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white" style={{ backgroundColor: "fb923c" }}>
                             {getGroupIcon(group.color)}
                           </div>
                           <div>
