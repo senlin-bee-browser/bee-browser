@@ -12,31 +12,30 @@ interface GroupTabDetailProps {
 
 interface TabItemProps {
   tab: chrome.tabs.Tab
-  onOpenTab: (url: string) => void
   onCloseTab: (tabId: number) => void
   onSwitchToTab: (tabId: number) => void
 }
 
-function TabItem({ tab, onOpenTab, onCloseTab, onSwitchToTab }: TabItemProps) {
+function TabItem({ tab, onCloseTab, onSwitchToTab }: TabItemProps) {
   const [showActions, setShowActions] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
 
-  const handleOpenTab = () => {
-    if (tab.url) {
-      onOpenTab(tab.url)
-    }
-  }
-
-  const handleSwitchToTab = () => {
+  const handleRowClick = () => {
     if (tab.id) {
       onSwitchToTab(tab.id)
     }
   }
 
-  const handleCloseTab = () => {
+  const handleCloseTab = (e: React.MouseEvent) => {
+    e.stopPropagation() // 防止触发行点击事件
     if (tab.id) {
       onCloseTab(tab.id)
     }
+  }
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation() // 防止触发行点击事件
+    setIsFavorite(!isFavorite)
   }
 
   const getDomain = (url: string) => {
@@ -54,9 +53,10 @@ function TabItem({ tab, onOpenTab, onCloseTab, onSwitchToTab }: TabItemProps) {
 
   return (
     <div 
-      className="group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200"
+      className="group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:bg-gray-50 transition-all duration-200 cursor-pointer"
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
+      onClick={handleRowClick}
     >
       <div className="flex items-start space-x-3">
         {/* Favicon */}
@@ -98,7 +98,7 @@ function TabItem({ tab, onOpenTab, onCloseTab, onSwitchToTab }: TabItemProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsFavorite(!isFavorite)}
+                onClick={handleFavoriteClick}
                 className="h-6 w-6 p-0"
                 title={isFavorite ? "Remove from favorites" : "Add to favorites"}
               >
@@ -124,31 +124,11 @@ function TabItem({ tab, onOpenTab, onCloseTab, onSwitchToTab }: TabItemProps) {
                 size="sm"
                 className="h-6 w-6 p-0"
                 title="More actions"
+                onClick={(e) => e.stopPropagation()}
               >
                 <MoreVertical className="w-3 h-3" />
               </Button>
             </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex space-x-2 mt-3">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleSwitchToTab}
-              className="text-xs"
-            >
-              Switch to Tab
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleOpenTab}
-              className="text-xs"
-            >
-              <ExternalLink className="w-3 h-3 mr-1" />
-              Open New
-            </Button>
           </div>
         </div>
       </div>
@@ -390,13 +370,6 @@ export default function GroupTabDetail({ group, onGroupDeleted }: GroupTabDetail
     }
   }
 
-  const handleOpenTab = async (url: string) => {
-    try {
-      await chrome.tabs.create({ url, active: false })
-    } catch (error) {
-      console.error('Failed to open tab:', error)
-    }
-  }
 
   const handleCloseTab = async (tabId: number) => {
     try {
@@ -525,7 +498,6 @@ export default function GroupTabDetail({ group, onGroupDeleted }: GroupTabDetail
               <TabItem
                 key={tab.id || index}
                 tab={tab}
-                onOpenTab={handleOpenTab}
                 onCloseTab={handleCloseTab}
                 onSwitchToTab={handleSwitchToTab}
               />

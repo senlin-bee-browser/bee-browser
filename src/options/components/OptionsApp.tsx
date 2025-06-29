@@ -202,7 +202,7 @@ export default function OptionsApp() {
               
               <label className="cursor-pointer">
                 <Button variant="outline" asChild>
-                  <span>
+                  <span style={{display: 'inline-flex'}}>
                     <Upload className="w-4 h-4 mr-2" />
                     Import Data
                   </span>

@@ -36,8 +36,9 @@ export default function SearchBox({ onSearch, placeholder = "搜索..." }: Searc
           onKeyPress={handleKeyPress}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          autoFocus
           placeholder={placeholder}
-          className={`w-full pl-14 pr-20 py-4 text-lg bg-white/80 backdrop-blur-xl rounded-2xl border transition-all duration-300 placeholder-gray-600 text-gray-900 shadow-lg ${
+          className={`w-full pl-14 pr-20 py-4 text-md bg-white/80 backdrop-blur-xl rounded-full border transition-all duration-300 placeholder-gray-600 text-gray-900 ${
             isFocused 
               ? 'border-blue-500 bg-white/90 shadow-xl ring-4 ring-blue-500/20' 
               : 'border-gray-200 hover:border-gray-300 hover:bg-white/85'
@@ -52,15 +53,6 @@ export default function SearchBox({ onSearch, placeholder = "搜索..." }: Searc
             <ArrowRight className="w-5 h-5" />
           </button>
         )}
-      </div>
-      
-      {/* 搜索建议提示 */}
-      <div className="mt-3 text-center">
-        <div className="inline-flex items-center space-x-4 text-sm text-gray-600">
-          <span>按 Enter 搜索</span>
-          <span>•</span>
-          <span>直接输入网址快速访问</span>
-        </div>
       </div>
     </div>
   )
