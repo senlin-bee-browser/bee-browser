@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ExternalLink, X, Star, StarOff, Globe, Clock, MoreVertical, Search, Trash2 } from 'lucide-react'
-import { MindMap } from '@ant-design/graphs'
+import { MindMap, MindMapOptions } from '@ant-design/graphs'
 import { Button } from '@shared/components'
 import { useApp } from '@shared/contexts/AppContext'
 import type { TabGroup } from '@shared/contexts/AppContext'
@@ -153,26 +153,34 @@ function TabMindmap({ group, onTabClick }: TabMindmapProps) {
           subcategory.tab_ids.includes(tab.id || 0)
         )
         
-        const tabChildren = subcategoryTabs.map((tab) => ({
-          id: tab.title || 'Untitled', // 使用id字段显示标签页标题
-          type: 'rect',
-          size: [160, 28],
-          style: {
-            fill: '#f0f9ff',
-            stroke: '#0ea5e9',
-            lineWidth: 1,
-            radius: 3,
-            cursor: 'pointer',
-          },
-          labelCfg: {
+        const tabChildren = subcategoryTabs.map((tab) => {
+          let title = tab.title || 'Untitled'
+          if (title.length > 15) { // 截断过长的标题到15个字符
+            title = title.slice(0, 15)
+            title += '…'
+          }
+          return {
+            id: title, // 使用id字段显示标签页标题
+            type: 'rect',
+            size: [160, 28],
             style: {
-              fill: '#0369a1',
-              fontSize: 9,
-              fontWeight: 'normal',
+              fill: '#fdf2cc',
+              stroke: '#0ea5e9',
+              lineWidth: 1,
+              radius: 3,
+              cursor: 'pointer',
             },
-          },
-          data: { tab, uniqueId: `tab-${tab.id}` } // 保存真实ID用于点击处理
-        }))
+            labelCfg: {
+              style: {
+                fill: '#fdf2cc',
+                fontSize: 9,
+                fontWeight: 'normal',
+                fontColor: '#805F0A'
+              },
+            },
+            data: { tab, uniqueId: `tab-${tab.id}` } // 保存真实ID用于点击处理
+          }
+        })
 
         return {
           id: subcategory.intent_level2, // 使用id字段显示二级意图
@@ -264,13 +272,13 @@ function TabMindmap({ group, onTabClick }: TabMindmapProps) {
 
   const mindMapData = createMindMapData()
 
-  const config = {
+  const config : MindMapOptions = {
     data: mindMapData,
     layout: {
       type: 'mindmap',
       direction: 'H', // Horizontal layout
-      getHGap: () => 100,
-      getVGap: () => 50,
+      getHGap: () => 20,
+      getVGap: () => 5,
       getSide: () => 'right', // All children nodes on the right side
     },
     defaultNode: {
@@ -280,7 +288,7 @@ function TabMindmap({ group, onTabClick }: TabMindmapProps) {
         fill: '#ffffff',
         stroke: '#1890ff',
         lineWidth: 1,
-        radius: 4,
+        radius: 1,
       },
       labelCfg: {
         style: {
