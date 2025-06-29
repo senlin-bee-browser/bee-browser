@@ -1,11 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, lazy, Suspense } from 'react'
 import { Settings, Home, BarChart3, Folder, Plus, Filter, X, ChevronDown, ChevronRight } from 'lucide-react'
 import { Button } from '@shared/components'
 import { useApp } from '@shared/contexts/AppContext'
 import { useTabs } from '@shared/hooks/useTabs'
-import Dashboard from '../pages/Dashboard'
-import Analytics from '../pages/Analytics'
-import GroupTabDetail from '../pages/GroupTabDetail'
+
+// Lazy load page components to reduce initial bundle size
+const Dashboard = lazy(() => import('../pages/Dashboard'))
+const Analytics = lazy(() => import('../pages/Analytics'))
+const GroupTabDetail = lazy(() => import('../pages/GroupTabDetail'))
 
 type ActivePage = 'dashboard' | 'analytics' | `group-${string}`
 
@@ -450,31 +452,46 @@ export default function WorkspaceApp() {
   }
 
   const renderPageContent = () => {
-    if (activePage.startsWith('group-')) {
-      const group = getCurrentGroup()
-      if (!group) {
-        return (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Group Not Found</h3>
-              <p className="text-gray-600">The requested group could not be found.</p>
-              <Button 
-                onClick={() => setActivePage('dashboard')}
-                className="mt-4"
-              >
-                Go to Dashboard
-              </Button>
-            </div>
+    return (
+      <Suspense fallback={
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
           </div>
-        )
-      }
-      
-      return <GroupTabDetail 
-        group={group} 
-        onGroupDeleted={() => setActivePage('dashboard')}
-      />
-    }
+        </div>
+      }>
+        {activePage.startsWith('group-') ? renderGroupContent() : renderMainContent()}
+      </Suspense>
+    )
+  }
 
+  const renderGroupContent = () => {
+    const group = getCurrentGroup()
+    if (!group) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Group Not Found</h3>
+            <p className="text-gray-600">The requested group could not be found.</p>
+            <Button 
+              onClick={() => setActivePage('dashboard')}
+              className="mt-4"
+            >
+              Go to Dashboard
+            </Button>
+          </div>
+        </div>
+      )
+    }
+    
+    return <GroupTabDetail 
+      group={group} 
+      onGroupDeleted={() => setActivePage('dashboard')}
+    />
+  }
+
+  const renderMainContent = () => {
     switch (activePage) {
       case 'dashboard':
         return <Dashboard />

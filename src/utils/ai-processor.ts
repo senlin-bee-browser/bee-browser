@@ -1,4 +1,4 @@
-import type { TabGroup } from '@shared/contexts/AppContext'
+import type { TabGroup, IntentAnalysisResult } from '@shared/contexts/AppContext'
 
 /**
  * AIProcessor - Centralized AI analysis utility for tab categorization and grouping
@@ -13,6 +13,7 @@ interface TabData {
   url: string | undefined
 }
 
+// 旧的单层分析结果（保持兼容）
 interface AnalysisResult {
   id: string
   category: string
@@ -47,9 +48,9 @@ export class AIProcessor {
   }
 
   /**
-   * Send tabs to Coze API for AI analysis and categorization
+   * Send tabs to Coze API for AI analysis and categorization (两层意图分析)
    */
-  static async analyzeTabsWithAI(tabsData: TabData[]): Promise<AnalysisResult[]> {
+  static async analyzeTabsWithAI(tabsData: TabData[]): Promise<IntentAnalysisResult[]> {
     console.log('🚀 Sending tabs to AI for analysis:', tabsData.length, 'tabs')
     console.log('📤 Tab data sample:', tabsData.slice(0, 2))
 
@@ -77,82 +78,84 @@ export class AIProcessor {
     const llmOutput = JSON.parse(responseData.data).output
     console.log('🧠 LLM output:', llmOutput)
     
-    const results = JSON.parse(llmOutput)
-    console.log('✅ Parsed results:', results)
+    const results: IntentAnalysisResult[] = JSON.parse(llmOutput)
+    console.log('✅ Parsed two-level intent results:', results)
     
-    // Fix empty IDs by mapping results back to original tabs
-    const validResults = results.map((result: any, index: number) => ({
-      id: tabsData[index]?.id?.toString() || index.toString(),
-      category: result.category
-    })).filter((result: any) => result.id && result.category)
+    // 验证并修复数据结构
+    const validResults = results.filter(result => 
+      result.intent_level1 && 
+      result.subcategories && 
+      Array.isArray(result.subcategories) &&
+      result.subcategories.length > 0
+    )
     
-    console.log('🔧 Fixed results with proper IDs:', validResults)
+    console.log('🔧 Validated two-level intent results:', validResults)
     return validResults
   }
 
   /**
-   * Create Chrome tab groups based on AI analysis results
+   * Create Chrome tab groups based on two-level intent analysis results
+   * 每个一级意图创建一个TabGroup，包含该意图下的所有标签页
    */
   static async createChromeTabGroups(
-    results: AnalysisResult[], 
+    results: IntentAnalysisResult[], 
     originalTabs: chrome.tabs.Tab[]
   ): Promise<TabGroup[]> {
-    console.log('🔨 Creating Chrome tab groups from results:', results)
+    console.log('🔨 Creating Chrome tab groups by level1 intent from results:', results)
     console.log('📋 Original tabs count:', originalTabs.length)
 
-    // Group results by category manually
-    const groupsMap = new Map<string, AnalysisResult[]>()
-    results.forEach((result) => {
-      const category = result.category
-      if (!groupsMap.has(category)) {
-        groupsMap.set(category, [])
-      }
-      groupsMap.get(category)!.push(result)
-    })
+    const createdGroups: TabGroup[] = []
     
-    console.log('📊 Groups map:', Array.from(groupsMap.entries()))
-    
-    const createdGroups = await Promise.all(
-      Array.from(groupsMap.entries()).map(async ([title, tabResults]) => {
-        const tabIds = tabResults
-          .map(t => parseInt(t.id))
-          .filter(id => !isNaN(id) && id > 0)
-        
-        console.log(`🏷️  Creating group "${title}" with tab IDs:`, tabIds)
-        
-        if (tabIds.length > 0) {
-          try {
-            const groupId = await chrome.tabs.group({ tabIds })
-            await chrome.tabGroups.update(groupId, { title })
-            
-            // Create TabGroup object for app state
-            const groupTabs = originalTabs.filter(tab => tab.id && tabIds.includes(tab.id))
-            
-            console.log(`✅ Created group "${title}" with ${groupTabs.length} tabs`)
-            
-            return {
-              id: `native-${groupId}`,
-              name: title,
-              tabs: groupTabs,
-              category: title,
-              createdAt: new Date(),
-              lastUpdated: new Date(),
-              nativeGroupId: groupId
-            }
-          } catch (error) {
-            console.error(`❌ Failed to create group "${title}":`, error)
-            return null
-          }
-        }
-        console.log(`⚠️  Skipping group "${title}" - no valid tab IDs`)
-        return null
+    for (const intentResult of results) {
+      // 收集该一级意图下所有标签页的ID
+      const allTabIds: number[] = []
+      intentResult.subcategories.forEach(subcategory => {
+        allTabIds.push(...subcategory.tab_ids.filter(id => id && id > 0))
       })
-    )
+      
+      console.log(`🏷️  Creating level1 group "${intentResult.intent_level1}" with ${allTabIds.length} total tabs`)
+      
+      if (allTabIds.length > 0) {
+        try {
+          // 为该一级意图创建一个Chrome标签页组
+          const groupId = await chrome.tabs.group({ tabIds: allTabIds })
+          await chrome.tabGroups.update(groupId, { title: intentResult.intent_level1 })
+          
+          // 获取该一级意图下的所有标签页
+          const groupTabs = originalTabs.filter(tab => tab.id && allTabIds.includes(tab.id))
+          
+          console.log(`✅ Created level1 group "${intentResult.intent_level1}" with ${groupTabs.length} tabs`)
+          console.log(`📂 Subcategories: ${intentResult.subcategories.map(s => s.intent_level2).join(', ')}`)
+          
+          createdGroups.push({
+            id: `level1-${groupId}`,
+            name: intentResult.intent_level1,
+            tabs: groupTabs,
+            category: intentResult.intent_level1,
+            createdAt: new Date(),
+            lastUpdated: new Date(),
+            nativeGroupId: groupId,
+            intentAnalysis: {
+              intent_level1: intentResult.intent_level1,
+              intent_level1_description: intentResult.intent_level1_description,
+              subcategories: intentResult.subcategories
+            }
+          })
+        } catch (error) {
+          console.error(`❌ Failed to create level1 group "${intentResult.intent_level1}":`, error)
+        }
+      } else {
+        console.log(`⚠️  Skipping level1 group "${intentResult.intent_level1}" - no valid tab IDs`)
+      }
+    }
 
-    const validGroups = createdGroups.filter(Boolean) as TabGroup[]
-    console.log('🎉 Successfully created groups:', validGroups.map(g => ({ name: g.name, tabCount: g.tabs.length })))
+    console.log('🎉 Successfully created level1 groups:', createdGroups.map(g => ({ 
+      name: g.name, 
+      tabCount: g.tabs.length,
+      subcategoriesCount: g.intentAnalysis.subcategories.length
+    })))
     
-    return validGroups
+    return createdGroups
   }
 
   /**

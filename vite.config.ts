@@ -57,6 +57,24 @@ export default defineConfig({
             return '[name].[ext]'
           }
           return 'assets/[name].[hash].[ext]'
+        },
+        // Manual chunking to optimize bundle sizes
+        manualChunks: {
+          // React and related libraries
+          'react-vendor': ['react', 'react-dom'],
+          // Lucide icons (large icon library)
+          'icons': ['lucide-react'],
+          // Shared utilities and contexts
+          'shared': [
+            './src/shared/contexts/AppContext',
+            './src/shared/hooks/useTabs',
+            './src/shared/components/index'
+          ],
+          // AI and processing utilities
+          'ai-utils': [
+            './src/utils/ai-processor',
+            './src/utils/storage-manager'
+          ]
         }
       }
     },
@@ -65,6 +83,8 @@ export default defineConfig({
     // Ensure we don't bundle Chrome APIs
     target: 'es2017',
     minify: process.env['NODE_ENV'] === 'production',
+    // Increase chunk size warning limit for Chrome extensions
+    chunkSizeWarningLimit: 800,
   },
   resolve: {
     alias: {

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ExternalLink, X, Star, StarOff, Globe, Clock, MoreVertical, Search, Trash2 } from 'lucide-react'
+import { MindMap } from '@ant-design/graphs'
 import { Button } from '@shared/components'
 import { useApp } from '@shared/contexts/AppContext'
 import type { TabGroup } from '@shared/contexts/AppContext'
@@ -11,31 +12,30 @@ interface GroupTabDetailProps {
 
 interface TabItemProps {
   tab: chrome.tabs.Tab
-  onOpenTab: (url: string) => void
   onCloseTab: (tabId: number) => void
   onSwitchToTab: (tabId: number) => void
 }
 
-function TabItem({ tab, onOpenTab, onCloseTab, onSwitchToTab }: TabItemProps) {
+function TabItem({ tab, onCloseTab, onSwitchToTab }: TabItemProps) {
   const [showActions, setShowActions] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
 
-  const handleOpenTab = () => {
-    if (tab.url) {
-      onOpenTab(tab.url)
-    }
-  }
-
-  const handleSwitchToTab = () => {
+  const handleRowClick = () => {
     if (tab.id) {
       onSwitchToTab(tab.id)
     }
   }
 
-  const handleCloseTab = () => {
+  const handleCloseTab = (e: React.MouseEvent) => {
+    e.stopPropagation() // 防止触发行点击事件
     if (tab.id) {
       onCloseTab(tab.id)
     }
+  }
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation() // 防止触发行点击事件
+    setIsFavorite(!isFavorite)
   }
 
   const getDomain = (url: string) => {
@@ -53,9 +53,10 @@ function TabItem({ tab, onOpenTab, onCloseTab, onSwitchToTab }: TabItemProps) {
 
   return (
     <div 
-      className="group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200"
+      className="group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:bg-gray-50 transition-all duration-200 cursor-pointer"
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
+      onClick={handleRowClick}
     >
       <div className="flex items-start space-x-3">
         {/* Favicon */}
@@ -97,7 +98,7 @@ function TabItem({ tab, onOpenTab, onCloseTab, onSwitchToTab }: TabItemProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsFavorite(!isFavorite)}
+                onClick={handleFavoriteClick}
                 className="h-6 w-6 p-0"
                 title={isFavorite ? "Remove from favorites" : "Add to favorites"}
               >
@@ -123,33 +124,208 @@ function TabItem({ tab, onOpenTab, onCloseTab, onSwitchToTab }: TabItemProps) {
                 size="sm"
                 className="h-6 w-6 p-0"
                 title="More actions"
+                onClick={(e) => e.stopPropagation()}
               >
                 <MoreVertical className="w-3 h-3" />
               </Button>
             </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="flex space-x-2 mt-3">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleSwitchToTab}
-              className="text-xs"
-            >
-              Switch to Tab
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleOpenTab}
-              className="text-xs"
-            >
-              <ExternalLink className="w-3 h-3 mr-1" />
-              Open New
-            </Button>
-          </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+interface TabMindmapProps {
+  group: TabGroup
+  onTabClick: (tabId: number) => void
+}
+
+function TabMindmap({ group, onTabClick }: TabMindmapProps) {
+  // Transform group and tabs data into tree format for Ant Design MindMap
+  const createMindMapData = () => {
+    // 展示完整的三层结构：一级意图 -> 多个二级意图 -> 每个二级意图下的标签页
+    if (group.intentAnalysis) {
+      // 为每个二级意图创建子节点
+      const level2Nodes = group.intentAnalysis.subcategories.map((subcategory, index) => {
+        // 获取该二级意图下的标签页
+        const subcategoryTabs = group.tabs.filter(tab => 
+          subcategory.tab_ids.includes(tab.id || 0)
+        )
+        
+        const tabChildren = subcategoryTabs.map((tab) => ({
+          id: tab.title || 'Untitled', // 使用id字段显示标签页标题
+          type: 'rect',
+          size: [160, 28],
+          style: {
+            fill: '#f0f9ff',
+            stroke: '#0ea5e9',
+            lineWidth: 1,
+            radius: 3,
+            cursor: 'pointer',
+          },
+          labelCfg: {
+            style: {
+              fill: '#0369a1',
+              fontSize: 9,
+              fontWeight: 'normal',
+            },
+          },
+          data: { tab, uniqueId: `tab-${tab.id}` } // 保存真实ID用于点击处理
+        }))
+
+        return {
+          id: subcategory.intent_level2, // 使用id字段显示二级意图
+          type: 'rect',
+          size: [200, 35],
+          style: {
+            fill: '#dbeafe',
+            stroke: '#3b82f6',
+            lineWidth: 1,
+            radius: 4,
+          },
+          labelCfg: {
+            style: {
+              fill: '#1e40af',
+              fontSize: 10,
+              fontWeight: 'medium',
+            },
+          },
+          children: tabChildren,
+          data: { level: 2, uniqueId: `level2-${index}` } // 保存层级信息
+        }
+      })
+
+      return {
+        id: group.intentAnalysis.intent_level1, // 使用id字段显示一级意图
+        type: 'rect',
+        size: [280, 50],
+        style: {
+          fill: '#1e40af',
+          stroke: '#1e40af',
+          lineWidth: 2,
+          radius: 6,
+        },
+        labelCfg: {
+          style: {
+            fill: '#ffffff',
+            fontSize: 14,
+            fontWeight: 'bold',
+          },
+        },
+        children: level2Nodes,
+        data: { level: 1, uniqueId: 'root' } // 保存层级信息
+      }
+    } else {
+      // 兼容旧的单层结构
+      const children = group.tabs.map((tab) => ({
+        id: tab.title || 'Untitled', // 使用id字段显示标签页标题
+        type: 'rect',
+        size: [200, 35],
+        style: {
+          fill: '#ffffff',
+          stroke: '#52c41a',
+          lineWidth: 1,
+          radius: 4,
+          cursor: 'pointer',
+        },
+        labelCfg: {
+          style: {
+            fill: '#333',
+            fontSize: 11,
+            fontWeight: 'normal',
+          },
+        },
+        data: { tab, uniqueId: `tab-${tab.id}` } // 保存真实ID用于点击处理
+      }))
+
+      return {
+        id: group.name, // 使用id字段显示组名
+        type: 'rect',
+        size: [150, 50],
+        style: {
+          fill: '#1890ff',
+          stroke: '#1890ff',
+          lineWidth: 2,
+          radius: 6,
+        },
+        labelCfg: {
+          style: {
+            fill: '#ffffff',
+            fontSize: 14,
+            fontWeight: 'bold',
+          },
+        },
+        children,
+        data: { level: 1, uniqueId: 'root' } // 保存层级信息
+      }
+    }
+  }
+
+  const mindMapData = createMindMapData()
+
+  const config = {
+    data: mindMapData,
+    layout: {
+      type: 'mindmap',
+      direction: 'H', // Horizontal layout
+      getHGap: () => 100,
+      getVGap: () => 50,
+      getSide: () => 'right', // All children nodes on the right side
+    },
+    defaultNode: {
+      type: 'rect',
+      size: [120, 40],
+      style: {
+        fill: '#ffffff',
+        stroke: '#1890ff',
+        lineWidth: 1,
+        radius: 4,
+      },
+      labelCfg: {
+        style: {
+          fill: '#333',
+          fontSize: 12,
+          fontWeight: 'normal',
+        },
+      },
+    },
+    onNodeClick: (evt: any) => {
+      const { item } = evt
+      const model = item.getModel()
+      
+      // Handle tab clicks
+      if (model.data?.tab?.id) {
+        onTabClick(model.data.tab.id)
+      }
+    },
+  }
+
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-gray-900">意图层次图</h2>
+        {group.intentAnalysis ? (
+          <div className="text-sm text-gray-600 space-y-2">
+            <div>
+              <p><span className="font-medium text-blue-600">{group.intentAnalysis.intent_level1}</span> 包含 {group.intentAnalysis.subcategories.length} 个子类别：</p>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {group.intentAnalysis.subcategories.map((sub, index) => (
+                  <span key={index} className="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                    {sub.intent_level2} ({sub.tab_ids.length})
+                  </span>
+                ))}
+              </div>
+            </div>
+            <p className="text-xs text-gray-500">{group.intentAnalysis.intent_level1_description}</p>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-600">点击任意标签页切换到该页面</p>
+        )}
+      </div>
+      
+      <div className="h-96 border border-gray-100 rounded-lg overflow-hidden">
+        <MindMap {...config} />
       </div>
     </div>
   )
@@ -194,13 +370,6 @@ export default function GroupTabDetail({ group, onGroupDeleted }: GroupTabDetail
     }
   }
 
-  const handleOpenTab = async (url: string) => {
-    try {
-      await chrome.tabs.create({ url, active: false })
-    } catch (error) {
-      console.error('Failed to open tab:', error)
-    }
-  }
 
   const handleCloseTab = async (tabId: number) => {
     try {
@@ -250,6 +419,9 @@ export default function GroupTabDetail({ group, onGroupDeleted }: GroupTabDetail
 
   return (
     <div className="p-6 space-y-6">
+      {/* Tab Mindmap */}
+      <TabMindmap group={group} onTabClick={handleSwitchToTab} />
+
       {/* Group Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -326,7 +498,6 @@ export default function GroupTabDetail({ group, onGroupDeleted }: GroupTabDetail
               <TabItem
                 key={tab.id || index}
                 tab={tab}
-                onOpenTab={handleOpenTab}
                 onCloseTab={handleCloseTab}
                 onSwitchToTab={handleSwitchToTab}
               />

@@ -1,13 +1,32 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react'
 
+// AI分析返回的二层意图结构
+interface IntentSubcategory {
+  intent_level2: string
+  tab_ids: number[]
+}
+
+interface IntentAnalysisResult {
+  intent_level1: string
+  intent_level1_description: string
+  subcategories: IntentSubcategory[]
+}
+
+// Chrome标签页分组结构（每个TabGroup代表一个一级意图）
 interface TabGroup {
   id: string
-  name: string
-  tabs: chrome.tabs.Tab[]
-  category: string
+  name: string // 一级意图名称
+  tabs: chrome.tabs.Tab[] // 该一级意图下的所有标签页
+  category: string // 等同于name，保持兼容
   createdAt: Date
   lastUpdated: Date
   nativeGroupId?: number
+  // 两层意图分析结果：一个一级意图包含多个二级意图
+  intentAnalysis?: {
+    intent_level1: string // 一级意图
+    intent_level1_description: string // 一级意图描述
+    subcategories: IntentSubcategory[] // 该一级意图下的所有二级意图
+  }
 }
 
 interface AppState {
@@ -117,4 +136,4 @@ export function useApp() {
   return context
 }
 
-export type { TabGroup, AppState, AppAction }
+export type { TabGroup, AppState, AppAction, IntentAnalysisResult, IntentSubcategory }
